@@ -5,6 +5,7 @@ My idea for a senior project. I have spent many hours of my life in browser base
 * [Cookie Clicker](http://orteil.dashnet.org/cookieclicker/ "Cookie Clicker"), 
 * [A Dark Room](http://adarkroom.doublespeakgames.com/ "A Dark Room"), and 
 * [Kittens Game](http://bloodrizer.ru/games/kittens/ "Kittens Game").
+
 I want to create a game similar to this, with as much polish as possible, and maybe even host it for other people online to play. This is a good middle ground for someone with my inexperience to play within the boundaries of my knowledge while still being able to produce a quality product. It is a very accessible concept, for both the creator (me) and the consumer (an internet user). 
 
 It will also introduce me to several concepts I have yet to understand:
