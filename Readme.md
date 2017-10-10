@@ -1,17 +1,17 @@
-Sovereign
-Last updated 10 October 2017
-===========================
+# Sovereign
+##### Last updated 10 October 2017
+--- 
 My idea for a senior project. I have spent many hours of my life in browser based games like 
-	- Cookie Clicker [Link: http://orteil.dashnet.org/cookieclicker/], 
-	- A Dark Room [Link: http://adarkroom.doublespeakgames.com/], and 
-	- Kittens Game [Link: http://bloodrizer.ru/games/kittens/].
+* [Cookie Clicker](http://orteil.dashnet.org/cookieclicker/ "Cookie Clicker"), 
+* [A Dark Room](http://adarkroom.doublespeakgames.com/ "A Dark Room"), and 
+* [Kittens Game](http://bloodrizer.ru/games/kittens/ "Kittens Game").
 I want to create a game similar to this, with as much polish as possible, and maybe even host it for other people online to play. This is a good middle ground for someone with my inexperience to play within the boundaries of my knowledge while still being able to produce a quality product. It is a very accessible concept, for both the creator (me) and the consumer (an internet user). 
 
 It will also introduce me to several concepts I have yet to understand:
-	- Saving/caching data locally on the user's browser & interacting with it (such as loading)
-	- Possibly Angular (I have no experience with it but it sounds like something I can make use of in this endeavor)
-	- Starting a Model-View-Controller protocol by scratch utilizing web services like HTML
-	- On a lesser note, all the cool things I have never tried before, but that I can probably accomplish (An achievement system, for instance)
+* Saving/caching data locally on the user's browser & interacting with it (such as loading)
+* Possibly Angular (I have no experience with it but it sounds like something I can make use of in this endeavor)
+* Starting a Model-View-Controller protocol by scratch utilizing web services like HTML
+* On a lesser note, all the cool things I have never tried before, but that I can probably accomplish (An achievement system, for instance)
 
 The idea for the game is that you are one individual from a nation felled by warring lesser factions who all worked towards your downfall. You were just a townsperson, but you must step up to take reign over a broken land and forge a new kingdom by your hand, starting from nothing and growing a ramshackle township into a thriving civilization with utmost sovereignty.
 
