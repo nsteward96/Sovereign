@@ -26,14 +26,47 @@
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
         <link rel="stylesheet" href="CSS/default.css">
         <!-- End Stylesheets -->
+        <!-- Fonts -->
+        <link href="https://fonts.googleapis.com/css?family=Coming+Soon|Fondamento|Just+Me+Again+Down+Here|La+Belle+Aurore|Rock+Salt" rel="stylesheet">
+        <!-- End Fonts -->
     </head>
     <body>
         <!-- WRAPPER -->
         <div class="container-fluid page-wrapper">
-            <div class="col-xs-12 main-navbar">
-                <!-- Nav buttons go here -->
+            <div class="row page-navbar-container">
+                <div class="col-xs-12 page-navbar">
+                    <!-- Nav buttons go here -->
+                </div>
             </div>
-
+            <div class="row game-area">
+                <div class="col-sm-2 flavor-text-area">
+                    <!-- Output flavor text to player goes here -->
+                </div>
+                <div class="col-sm-7 col-md-8 remove-padding">
+                    <div class="game-navbar">
+                        <!-- Tabs that manipulate the Main Display go here -->
+                        <button class="btn btn-sm selected" id="resourceGenerationBtn">The Wilds</button>
+                        <button class="btn btn-sm" id="viewTownBtn">Settlement</button>
+                    </div>
+                    <div class="col-sm-12 main-display">
+                        <div class="resourceGenerationView">
+                            <button class="btn btn-sm" id="genericResourceBtn">Generate Resource</button>
+                        </div>
+                        <!-- Main Display views go here -->
+                    </div>
+                </div>
+                <div class="col-sm-3 col-md-2 resources-display">
+                    <!-- Resources list goes here -->
+                    <div class="row">
+                        <div class="col-sm-6 remove-padding resource-name" id="resource-name">
+                            Resource: 
+                        </div>
+                        <div class="col-sm-6 remove-padding resource-value" id="resource-value">
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         <!-- END WRAPPER -->
         <!-- Scripts -->

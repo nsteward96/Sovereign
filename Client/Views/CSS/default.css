@@ -1,27 +1,125 @@
-body {
-    height: 100vh;
+/* Available Google Fonts:
+font-family: 'Coming Soon', cursive;                - Neat writing
+font-family: 'Just Me Again Down Here', cursive;    - Decent handwriting, an alternative to 'Coming Soon'
+font-family: 'Rock Salt', cursive;                  - Big handwriting with all caps
+font-family: 'La Belle Aurore', cursive;            - Very neat cursive writing; fancy
+font-family: 'Fondamento', cursive;                 - Great classical text; good default for non-speech text
+*/
+
+body, html {
+    height: 100%;
+    font-family: 'Fondamento', cursive;
 }
 
 .page-wrapper {
     height: 100%;
-    padding: 0px;
-    background-color: #DDF;
 }
 
-.main-navbar {
-    width: 100%;
+/* General Styling Classes */
+.remove-padding {
+    padding: 0px;   
+}
+
+/* Main Navbar and inner stylings */
+.page-navbar-container {
     height: 30px;
-    background-color: #335;
-    padding: 0px 2.5px;
 }
 
-/* JQuery Class Modifications */
+.page-navbar {
+    height: 100%;
+    background-color: #353550;
+}
+
+/***** All Main Game Custom Stylings *****/
+.game-area {
+    height: calc(100% - 30px);
+}
+
+/* Game Navbar and inner stylings */
+.game-navbar {
+    height: 60px;
+    background-color: #505050;
+    padding: 14.5px;
+}
+
+.game-navbar > .btn {
+    margin-right: 5px;
+    background-color: #505050;
+    color: white;
+}
+
+
+.game-navbar > .btn.selected {
+    border-top: 2px solid white;
+    border-bottom: 2px solid white;
+}
+
+/* Flavor Text and inner stylings */
+.flavor-text-area {
+    height: 100%;
+    background-color: #906868;
+}
+
+/* Main Display and inner stylings */
+.main-display {
+    padding: 10px;
+    height: calc(100% - 60px);
+    background-color: #FAFAFF;
+}
+
+.main-display > * > .btn {
+    border: 2px solid black;
+    background-color: white;
+    font-weight: bold;
+}
+
+.main-display > * > .btn:active {
+    background-color: #BBBBBB;
+}
+
+/* Resources Display and inner stylings */
+.resources-display {
+    height: 100%;
+    background-image: url("../../Assets/resources_background.png");
+    color: white;
+}
+
+.resource-name {
+    text-align: left;
+    padding-left: 10px;
+}
+
+.resource-value {
+    text-align: right;
+    padding-right: 10px;
+}
+
+/***** End All Main Game Custom Stylings *****/
+
+/* BootStrap Class Modifications */
+.btn {
+    user-drag: none; 
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-drag: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+}
+
+.btn:hover {
+    cursor: pointer;
+}
+
+.btn:focus, .btn:active {
+    box-shadow: none;
+}
+
 .main-navbar > .btn {
     height: 25px;
     padding: 2.5px;
     border-radius: 1px;
     border-color: #AAA;
-    background-color: #335;
+    background-color: #393950;
     color: #AAA;
 }
-/* End JQuery Class Modifications */
+/* End BootStrap Class Modifications */
