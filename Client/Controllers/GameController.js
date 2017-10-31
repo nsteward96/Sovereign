@@ -21,7 +21,6 @@ $(document).ready(function() {
 function initModels() {
     var resource = 0;
     modelResource['resource'] = resource;
-    console.log(modelResource['resource']);
 }
 
 // Updates the style on the navbar to show the user they have clicked a new tab.
@@ -44,6 +43,5 @@ function updateResourceValues() {
     if (modelResource['resource'] !== null) {
         document.getElementById('resource-value').innerText = modelResource['resource'];
     }
-    console.log(modelResource['resource']);
-    window.setTimeout(updateResourceValues, 25);
+    window.setTimeout(updateResourceValues, 50);
 }
