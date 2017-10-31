@@ -44,10 +44,11 @@ body, html {
 
 .game-navbar > .btn {
     margin-right: 5px;
+    border-top: 2px solid transparent;
+    border-bottom: 2px solid transparent;
     background-color: #505050;
     color: white;
 }
-
 
 .game-navbar > .btn.selected {
     border-top: 2px solid white;
