@@ -45,19 +45,22 @@
                 <div class="col-sm-7 col-md-8 remove-padding">
                     <div class="game-navbar">
                         <!-- Tabs that manipulate the Main Display go here -->
-                        <button class="btn btn-sm selected" id="resourceGenerationBtn">The Wilds</button>
-                        <button class="btn btn-sm" id="viewTownBtn">Settlement</button>
+                        <button class="btn btn-sm selected" id="resourceGenerationNavBtn">The Wilds</button>
+                        <button class="btn btn-sm" id="manageTownNavBtn">Settlement</button>
                     </div>
                     <div class="col-sm-12 main-display">
-                        <div class="resourceGenerationView">
+                        <!-- Main Display views go here -->
+                        <div class="view resource-generation-view" id="resourceGenerationView">
                             <button class="btn btn-sm" id="genericResourceBtn">Generate Resource</button>
                         </div>
-                        <!-- Main Display views go here -->
+                        <div class="view manage-town-view" id="manageTownView" style="display: none;">
+                            Settlement view
+                        </div>
                     </div>
                 </div>
                 <div class="col-sm-3 col-md-2 resources-display">
-                    <!-- Resources list goes here -->
                     <div class="row">
+                        <!-- Resources list goes here -->
                         <div class="col-sm-6 remove-padding resource-name" id="resource-name">
                             Resource: 
                         </div>
