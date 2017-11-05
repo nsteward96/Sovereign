@@ -14,14 +14,9 @@ $(document).ready(function() {
     genericResourceBtn.addEventListener('click', function() {generateResource();});
     
     initModels();
+    autosaveTimer();
     updateResourceValues();
 });
-
-// Initializes models with content.
-function initModels() {
-    var resource = 0;
-    modelResource['resource'] = resource;
-}
 
 // Updates the style on the navbar to show the user they have clicked a new tab.
 function updateSelectedView(divBeingSelected) {
@@ -36,6 +31,29 @@ function updateSelectedView(divBeingSelected) {
 //                  Remove later. Merely to test functionality.
 function generateResource() {
     modelResource['resource']++;
+}
+
+// Initializes models with content.
+function initModels() {
+    // Init all resource values to 0.
+    modelResource['resource'] = 0;
+    
+    // Retrieve any stored user resource data.
+    var storedResourceData = JSON.parse(localStorage.getItem('resourceData'));
+    
+    // Replace default resource values with saved resource values if applicable.
+    if(storedResourceData !== null) {
+        if (storedResourceData['resource']) {
+            modelResource['resource'] = storedResourceData['resource'];
+        } 
+    }
+}
+
+// Initializes the autosave timer to ensure user data persistence.
+//                  User data is autosaved every 30 seconds.
+function autosaveTimer() {
+    localStorage.setItem("resourceData", JSON.stringify(modelResource));
+    window.setTimeout(autosaveTimer, 30000);
 }
 
 // Functionality: Update page values (resources) on an interval.
