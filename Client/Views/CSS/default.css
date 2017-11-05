@@ -3,12 +3,13 @@ font-family: 'Coming Soon', cursive;                - Neat writing
 font-family: 'Just Me Again Down Here', cursive;    - Decent handwriting, an alternative to 'Coming Soon'
 font-family: 'Rock Salt', cursive;                  - Big handwriting with all caps
 font-family: 'La Belle Aurore', cursive;            - Very neat cursive writing; fancy
-font-family: 'Fondamento', cursive;                 - Great classical text; good default for non-speech text
+font-family: 'Fondamento', cursive;                 - Great classical text; good default for non-speech fancy text
+font-family: 'Josefin Sans', cursive;               - Plain text
 */
 
 body, html {
     height: 100%;
-    font-family: 'Fondamento', cursive;
+    font-family: 'Josefin Sans', sans-serif;
 }
 
 .page-wrapper {
@@ -39,12 +40,14 @@ body, html {
 .game-navbar {
     height: 60px;
     background-color: #505050;
-    padding: 14.5px;
+    padding: 9px;
 }
 
 .game-navbar > .btn {
     margin-right: 5px;
     background-color: #505050;
+    font-size: 20px;
+    font-family: 'Fondamento', cursive;
     color: white;
 }
 
@@ -71,10 +74,7 @@ body, html {
     border: 2px solid black;
     background-color: white;
     font-weight: bold;
-}
-
-.main-display > * > .btn:active {
-    background-color: #BBBBBB;
+    font-size: 20px;
 }
 
 /* Resources Display and inner stylings */
