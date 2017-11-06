@@ -15,6 +15,7 @@ $(document).ready(function() {
     genericResourceBtn.addEventListener('click', function() {generateResource();});
     
     initModels();
+    autosaveTimer();
     updateResourceValues();
 });
 
