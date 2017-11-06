@@ -81,17 +81,20 @@ body, html {
 /* Resources Display and inner stylings */
 .resources-display {
     height: 100%;
-    background-image: url("../../Assets/resources_background.png");
+    background-image: url('../../Assets/resources_background.png');
+    font-size: 20px;
     color: white;
 }
 
 .resource-name {
     text-align: left;
+    font-size: inherit;
     padding-left: 10px;
 }
 
 .resource-value {
     text-align: right;
+    font-size: inherit;
     padding-right: 10px;
 }
 

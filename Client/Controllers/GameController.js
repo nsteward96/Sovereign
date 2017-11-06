@@ -3,9 +3,10 @@ var model = {};
 
 $(document).ready(function() {
     // Generate list of game nav buttons; add listeners to update view when clicked.
-    var gameNavButtonArray = [];
-    gameNavButtonArray.push(document.getElementById('resourceGenerationBtn'));
-    gameNavButtonArray.push(document.getElementById('viewTownBtn'));
+    var gameNavButtonArray = [
+                                document.getElementById('resourceGenerationNavBtn'),
+                                document.getElementById('manageTownNavBtn')
+                              ];
     for (let i = 0; i < gameNavButtonArray.length; i++) {
         gameNavButtonArray[i].addEventListener('click', function() {updateSelectedView(gameNavButtonArray[i]);});
     }
@@ -18,12 +19,24 @@ $(document).ready(function() {
     updateResourceValues();
 });
 
-// Updates the style on the navbar to show the user they have clicked a new tab.
+// Changes the currently-displayed view.
 function updateSelectedView(divBeingSelected) {
+    // Update which button is currently selected.
     var currentlySelectedDiv = document.getElementsByClassName('selected')[0];
     if (currentlySelectedDiv !== divBeingSelected) {
         document.getElementsByClassName('selected')[0].classList.remove('selected');
         divBeingSelected.classList.add('selected');
+    }
+    // Hide all views
+    var viewDivs = document.getElementsByClassName('view');
+    for (let i = 0; i < viewDivs.length; i++) {
+        viewDivs[i].style = 'display: none;';
+    }
+    // Display the correct view
+    if (divBeingSelected.id === 'resourceGenerationNavBtn') {
+        document.getElementById('resourceGenerationView').style = 'display: block;';
+    } else if (divBeingSelected.id === 'manageTownNavBtn') {
+        document.getElementById('manageTownView').style = 'display: block;';
     }
 }
 
@@ -50,10 +63,10 @@ function initModels() {
 }
 
 // Initializes the autosave timer to ensure user data persistence.
-//                  User data is autosaved every 30 seconds.
+//                  User data is autosaved every 15 seconds.
 function autosaveTimer() {
-    localStorage.setItem("resourceData", JSON.stringify(modelResource));
-    window.setTimeout(autosaveTimer, 30000);
+    localStorage.setItem('resourceData', JSON.stringify(modelResource));
+    window.setTimeout(autosaveTimer, 15000);
 }
 
 // Functionality: Update page values (resources) on an interval.
