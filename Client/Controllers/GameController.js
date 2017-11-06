@@ -18,17 +18,7 @@ $(document).ready(function() {
     updateResourceValues();
 });
 
-<<<<<<< Updated upstream
-// Initializes models with content.
-function initModels() {
-    var resource = 0;
-    modelResource['resource'] = resource;
-}
-
-// Updates the style on the navbar to show the user they have clicked a new tab.
-=======
 // Changes the currently-displayed view.
->>>>>>> Stashed changes
 function updateSelectedView(divBeingSelected) {
     // Update which button is currently selected.
     var currentlySelectedDiv = document.getElementsByClassName('selected')[0];
@@ -55,8 +45,6 @@ function generateResource() {
     modelResource['resource']++;
 }
 
-<<<<<<< Updated upstream
-=======
 // Initializes models with content.
 function initModels() {
     // Init all resource values to 0.
@@ -74,13 +62,12 @@ function initModels() {
 }
 
 // Initializes the autosave timer to ensure user data persistence.
-//                  User data is autosaved every 30 seconds.
+//                  User data is autosaved every 15 seconds.
 function autosaveTimer() {
     localStorage.setItem('resourceData', JSON.stringify(modelResource));
-    window.setTimeout(autosaveTimer, 30000);
+    window.setTimeout(autosaveTimer, 15000);
 }
 
->>>>>>> Stashed changes
 // Functionality: Update page values (resources) on an interval.
 function updateResourceValues() {
     if (modelResource['resource'] !== null) {
