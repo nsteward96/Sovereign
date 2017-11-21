@@ -66,8 +66,8 @@ body, html {
 
 /* Main Display and inner stylings */
 .main-display {
-    padding: 10px;
     height: calc(100% - 60px);
+    padding: 10px;
     background-color: #FAFAFF;
 }
 
@@ -76,6 +76,62 @@ body, html {
     background-color: white;
     font-weight: bold;
     font-size: 20px;
+}
+
+.job-container {
+    float: left;
+    display: inline-block;
+    height: 327px;
+    width: calc(24% - 2.5px);
+    margin: .5%;
+    border: 1px solid #444;
+    font-size: 0;
+    text-align: center;
+}
+
+.job-container#workerStatsDisplayTotalWorkers {
+    padding: 5px;
+    text-align: left;
+    font-size: 16px;
+}
+
+.job-display-box {
+    height: 150px;
+    width: 100%;
+    background-color: #bbb;
+}
+
+.job-description-box {
+    height: 125px;
+    font-size: 16px;
+}
+
+.add-worker, .remove-worker {
+    height: 50px;
+    width: 50%;
+    display: inline-block;
+    cursor: pointer;
+    font-size: 32px;
+    user-drag: none; 
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-drag: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+}
+
+.add-worker {
+    background-color: #7d7;
+}
+
+.remove-worker {
+    background-color: #d77;
+}
+
+#jobResourceCollector > .job-display-box {
+    background-image: url('../../Assets/jobs-images/peasant.jpg');
+    background-position-y: -33px;
+    background-size: cover;
 }
 
 /* Resources Display and inner stylings */

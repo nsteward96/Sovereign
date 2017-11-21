@@ -45,28 +45,39 @@
                 <div class="col-sm-7 col-md-8 remove-padding">
                     <div class="game-navbar">
                         <!-- Tabs that manipulate the Main Display go here -->
-                        <button class="btn btn-sm selected" id="resourceGenerationNavBtn">The Wilds</button>
-                        <button class="btn btn-sm" id="manageTownNavBtn">Settlement</button>
+                        <button class="btn btn-sm selected" id="resourceGenerationNavButton">The Wilds</button>
+                        <button class="btn btn-sm" id="manageTownNavButton">Settlement</button>
+                        <button class="btn btn-sm" id="manageJobsNavButton">Jobs</button>
                     </div>
                     <div class="col-sm-12 main-display">
                         <!-- Main Display views go here -->
                         <div class="view resource-generation-view" id="resourceGenerationView">
-                            <button class="btn btn-sm" id="genericResourceBtn">Generate Resource</button>
+                            <button class="btn btn-sm" id="genericResourceButton">Generate Resource</button>
                         </div>
                         <div class="view manage-town-view" id="manageTownView" style="display: none;">
                             Settlement view
+                        </div>
+                        <div class="view manage-jobs-view" id="manageJobsView" style="display: none;">
+                            <div class="job-container" id='workerStatsDisplayTotalWorkers'>
+                                Townspeople working: <span id="num-workers"></span>
+                            </div>
+                            <div class="job-container" id="jobResourceCollector">
+                                <div class="job-display-box"></div>
+                                <div class="job-description-box">
+                                    "A simple farmer."<br /> +.5 resource/sec.<br /><br /><br />
+                                    <span id="numWorkersResourceCollector"></span> working for you right now.
+                                </div>
+                                <div class="add-worker">+</div>
+                                <div class="remove-worker">-</div>
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div class="col-sm-3 col-md-2 resources-display">
                     <div class="row">
                         <!-- Resources list goes here -->
-                        <div class="col-sm-6 remove-padding resource-name" id="resource-name">
-                            Resource: 
-                        </div>
-                        <div class="col-sm-6 remove-padding resource-value" id="resource-value">
-                            
-                        </div>
+                        <div class="col-sm-6 remove-padding resource-name" id="resource-name"></div>
+                        <div class="col-sm-6 remove-padding resource-value" id="resource-value"></div>
                     </div>
                 </div>
             </div>
