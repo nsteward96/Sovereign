@@ -138,8 +138,23 @@ body, html {
 .resources-display {
     height: 100%;
     background-image: url('../../Assets/resources_background.png');
-    font-size: 20px;
+    font-size: 18px;
     color: white;
+}
+@media (max-width: 1680px) {
+    .resources-display {
+        font-size: 14px;
+    }
+}
+@media (max-width: 1200px) {
+    .resources-display {
+        font-size: 10px;
+    }
+}
+@media (max-width: 900px) {
+    .resources-display {
+        font-size: 8px;
+    }
 }
 
 .resource-name {
