@@ -4,12 +4,12 @@ font-family: 'Just Me Again Down Here', cursive;    - Decent handwriting, an alt
 font-family: 'Rock Salt', cursive;                  - Big handwriting with all caps
 font-family: 'La Belle Aurore', cursive;            - Very neat cursive writing; fancy
 font-family: 'Fondamento', cursive;                 - Great classical text; good default for non-speech fancy text
-font-family: 'Josefin Sans', cursive;               - Plain text
+font-family: 'Ubuntu Mono', monospace;               - Plain text
 */
 
 body, html {
     height: 100%;
-    font-family: 'Josefin Sans', sans-serif;
+    font-family: 'Ubuntu Mono', monospace;
 }
 
 .page-wrapper {
@@ -78,7 +78,7 @@ body, html {
     font-size: 20px;
 }
 
-.job-container {
+.job-container, .building-container {
     float: left;
     display: inline-block;
     height: 327px;
@@ -89,24 +89,25 @@ body, html {
     text-align: center;
 }
 
-.job-container#workerStatsDisplayTotalWorkers {
+.job-container#workerStatsDisplay {
     padding: 5px;
     text-align: left;
     font-size: 16px;
 }
 
-.job-display-box {
+.job-display-box, .building-display-box {
     height: 150px;
     width: 100%;
     background-color: #bbb;
 }
 
-.job-description-box {
+.job-description-box, .building-description-box {
     height: 125px;
     font-size: 16px;
 }
 
-.add-worker, .remove-worker {
+.add-worker, .remove-worker,
+.buy-building, .sell-building {
     height: 50px;
     width: 50%;
     display: inline-block;
@@ -120,17 +121,27 @@ body, html {
     -ms-user-select: none;
 }
 
-.add-worker {
+.add-worker, .buy-building {
     background-color: #7d7;
 }
 
-.remove-worker {
+.buy-building {
+    width: 100%;
+}
+
+.remove-worker, .sell-building {
     background-color: #d77;
 }
 
 #jobResourceCollector > .job-display-box {
     background-image: url('../../Assets/jobs-images/peasant.jpg');
     background-position-y: -33px;
+    background-size: cover;
+}
+
+#buildingSmallHouse > .building-display-box {
+    background-image: url('../../Assets/buildings-images/smallhouse.jpg');
+    background-position-y: -50px;
     background-size: cover;
 }
 
