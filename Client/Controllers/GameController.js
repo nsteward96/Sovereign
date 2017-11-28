@@ -3,6 +3,7 @@ var modelResourceRates = {};
 var modelResourceVelocity = {};
 var modelViews = {};
 var modelJobs = {};
+var modelBuildings = {};
 var model = {};
 
 $(document).ready(function() {
@@ -28,11 +29,18 @@ $(document).ready(function() {
             deallocateWorker(removeWorkerButtonArray[i]);
         });
     }
+    var buyBuildingButtonArray = document.getElementsByClassName('buy-building');
+    for (let i = 0; i < buyBuildingButtonArray.length; i++) {
+        buyBuildingButtonArray[i].addEventListener('click', function() {
+            buyBuilding(buyBuildingButtonArray[i]);
+        });
+    }
     
     var genericResourceButton = document.getElementById('genericResourceButton');
     genericResourceButton.addEventListener('click', function() {generateResource();});
     
     autosaveTimer();
+    townspeopleArrivalTimer();
     updateResourceValues();
 });
 
@@ -40,21 +48,26 @@ $(document).ready(function() {
 function initModels() {
     // Init all resource values to 0.
     modelResource['resource'] = 0;
-    modelResource['townspeopleAvailable'] = 1;
-    modelResource['townspeopleMax'] = 1;
+    modelResource['townspeopleAvailable'] = 0;
+    modelResource['townspeopleAlive'] = 0;
+    modelResource['townspeopleMax'] = 0;
     modelResource['townspeopleResourceCollector'] = 0;
+    modelResource['smallHousesOwned'] = 0;
     // Init all resource generation rates (rate per worker).
-    modelResourceRates['resourceCollector'] = 0.5;
+    modelResourceRates['resourceCollector'] = 0.5; // Resource generated per Resource collector
+    modelResourceRates['incrementalGrowthRateBuildings'] = 1.15; // Cost increase per building
+    modelResourceRates['smallHouse'] = 2; // Increase of max residents per house
     // Retrieve any stored user resource data.
     var storedResourceData = JSON.parse(localStorage.getItem('modelResource'));
     var storedResourceRatesData = JSON.parse(localStorage.getItem('modelResourceRates'));
-    var storedJobsData = JSON.parse(localStorage.getItem('modelJobs'));
     // Replace default resource values with saved resource values.
     if (storedResourceData !== null) {
         modelResource['resource'] = storedResourceData['resource'];
         modelResource['townspeopleAvailable'] = storedResourceData['townspeopleAvailable'];
+        modelResource['townspeopleAlive'] = storedResourceData['townspeopleAlive'];
         modelResource['townspeopleMax'] = storedResourceData['townspeopleMax'];
         modelResource['townspeopleResourceCollector'] = storedResourceData['townspeopleResourceCollector'];
+        modelResource['smallHousesOwned'] = storedResourceData['smallHousesOwned'];
     }
     // Replace default resource rate values with saved resource rate values.
     if (storedResourceRatesData !== null) {
@@ -84,7 +97,16 @@ function initModels() {
         {
             id: document.getElementById('jobResourceCollector').id,
             allocateButton: document.getElementById('jobResourceCollector').children[2],
-            deallocateButton: document.getElementById('jobResourceCollector').children[3],
+            deallocateButton: document.getElementById('jobResourceCollector').children[3]
+        }
+    // Init the buildings model.
+    modelBuildings['smallHouse'] = 
+        {
+            id: document.getElementById('buildingSmallHouse').id,
+            basePrice: 50,
+            price: determineCurrentPriceBuilding(50, modelResource['smallHousesOwned']),
+            buyButton: document.getElementById('buildingSmallHouseBuyButton'),
+            sellButton: document.getElementById('buildingSmallHouseSellButton')
         }
 }
 
@@ -144,6 +166,40 @@ function deallocateWorker(removeWorkerButton) {
     }
 }
 
+// User buys a building
+function buyBuilding(buyBuildingButton) {
+    var buildingId = buyBuildingButton.parentElement.id;
+    for (let building in modelBuildings) {
+        if (modelBuildings[building].id === buildingId && modelBuildings[building].price <= modelResource['resource']) {
+            modelResource['resource'] -= modelBuildings[building].price;
+            modelResource['smallHousesOwned']++;
+            modelBuildings[building].price = 
+                determineCurrentPriceBuilding(modelBuildings[building].basePrice, modelResource['smallHousesOwned']);
+            updateMaxResources();
+        }
+    }
+}
+
+// User sells a building - currently put aside, complications with townspeople
+
+// function sellBuilding(sellBuildingButton) {
+//     var buildingId = sellBuildingButton.parentElement.id;
+//     if (buildingId === 'buildingSmallHouse' && modelResource['smallHousesOwned'] > 0) {
+//         modelResource['resource'] += ((1/2)*modelBuildings['smallHouse'].price*.87);
+//         modelResource['smallHousesOwned']--;
+//         modelBuildings['smallHouse'].price = determineCurrentPriceBuilding(modelBuildings['smallHouse'], modelResource['smallHousesOwned']);
+//     }
+// }
+
+// Returns the current price of a building.
+function determineCurrentPriceBuilding(basePrice, numOwned) {
+    var finalPrice = basePrice;
+    for (let i = 0; i < numOwned; i++) {
+        finalPrice *= modelResourceRates['incrementalGrowthRateBuildings'];
+    }
+    return finalPrice;
+}
+
 // Functionality: Iterates the generic 'resource' resource by 1.
 //                  Remove later. Merely to test functionality.
 function generateResource() {
@@ -155,13 +211,29 @@ function generateResource() {
 function autosaveTimer() {
     localStorage.setItem('modelResource', JSON.stringify(modelResource));
     localStorage.setItem('modelResourceRates', JSON.stringify(modelResourceRates));
-    localStorage.setItem('modelJobs', JSON.stringify(modelJobs));
     window.setTimeout(autosaveTimer, 15000);
+}
+
+// Initializes a timer that will result in new townspeople arriving in town.
+function townspeopleArrivalTimer() {
+    if (modelResource['townspeopleAlive'] < modelResource['townspeopleMax']) {
+        var incomingTownspeople = Math.round(Math.random() * 3);
+        if (modelResource['townspeopleAlive'] + incomingTownspeople > modelResource['townspeopleMax']) {
+            incomingTownspeople = modelResource['townspeopleMax'] - modelResource['townspeopleAlive'];
+        }
+        modelResource['townspeopleAlive'] += incomingTownspeople;
+        modelResource['townspeopleAvailable'] += incomingTownspeople;
+    }
+    window.setTimeout(townspeopleArrivalTimer, 12500);
 }
 
 function updateResourceVelocity() {
     modelResourceVelocity['resourceCollector'] = 
         modelResource['townspeopleResourceCollector'] * modelResourceRates['resourceCollector'];
+}
+
+function updateMaxResources() {
+    modelResource['townspeopleMax'] = modelResource['smallHousesOwned'] * modelResourceRates['smallHouse'];
 }
 
 // Functionality: Update page-displayed resource values on an interval.
@@ -177,10 +249,11 @@ function updateResourceValues() {
         resourceName.innerText = 'Resource';
     }
     document.getElementById('resource-value').innerText = modelResource['resource'].toFixed(2);
-    document.getElementById('num-workers').innerText = 
-        (modelResource['townspeopleMax'] - modelResource['townspeopleAvailable']) + 
-        '/' + modelResource['townspeopleMax'];
+    document.getElementById('maxNumTownspeople').innerText = modelResource['townspeopleMax'];
+    document.getElementById('numWorkers').innerText = modelResource['townspeopleAvailable'] + '/' 
+        + modelResource['townspeopleAlive'];
     document.getElementById('numWorkersResourceCollector').innerText = modelResource['townspeopleResourceCollector'];
+    document.getElementById('numOwnedSmallHouses').innerText = modelResource['smallHousesOwned'];
     window.setTimeout(updateResourceValues, 50);
 }
 

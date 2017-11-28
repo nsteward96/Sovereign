@@ -27,7 +27,7 @@
         <link rel="stylesheet" href="CSS/default.css">
         <!-- End Stylesheets -->
         <!-- Fonts -->
-        <link href="https://fonts.googleapis.com/css?family=Coming+Soon|Fondamento|Just+Me+Again+Down+Here|La+Belle+Aurore|Rock+Salt|Josefin+Sans" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css?family=Coming+Soon|Fondamento|Just+Me+Again+Down+Here|La+Belle+Aurore|Rock+Salt|Ubuntu+Mono" rel="stylesheet">
         <!-- End Fonts -->
     </head>
     <body>
@@ -59,11 +59,22 @@
                             <button class="btn btn-sm" id="genericResourceButton">Generate Resource</button>
                         </div>
                         <div class="view manage-town-view" id="manageTownView" style="display: none;">
-                            Settlement view
+                            <div class="building-container" id="buildingSmallHouse">
+                                <div class="building-display-box"></div>
+                                <div class="building-description-box">
+                                    "A sturdy shack. Uncomfortable, but it gets the job done."<br /> +2 Max Townspeople<br /><br />
+                                    <span id="numOwnedSmallHouses"></span> currently in your dominion.
+                                </div>
+                                <div class="buy-building" id="buildingSmallHouseBuyButton">Buy</div>
+                            </div>
                         </div>
                         <div class="view manage-jobs-view" id="manageJobsView" style="display: none;">
-                            <div class="job-container" id='workerStatsDisplayTotalWorkers'>
-                                Townspeople working: <span id="num-workers"></span>
+                            <div class="job-container" id='workerStatsDisplay'>
+                                Maximum townspeople: <span id="maxNumTownspeople"></span>
+                                <br />
+                                <span id="workerStatsDisplayTotalWorkers">
+                                    Townspeople available: <span id="numWorkers"></span>
+                                </span>
                             </div>
                             <div class="job-container" id="jobResourceCollector">
                                 <div class="job-display-box"></div>
