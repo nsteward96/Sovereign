@@ -286,14 +286,14 @@ function updateResourceValues() {
     calculateResourceValuePerTick();
     resourceName = document.getElementById('resource-name');
     if (modelResourceVelocity['resourceCollector'] > 0) {
-        resourceName.innerText = 'Resource (+' + modelResourceVelocity['resourceCollector'].toFixed(1) + ')';
+        resourceName.innerText = 'Resource (+' + formatNumberToSignificantValue(modelResourceVelocity['resourceCollector']) + ')';
     } else if (modelResourceVelocity < 0) {
         resourceName.innerText = 
-            'Resource (' + modelResourceVelocity['resourceCollector'].toFixed(1) + ')';
+            'Resource (' + formatNumberToSignificantValue(modelResourceVelocity['resourceCollector']) + ')';
     } else {
         resourceName.innerText = 'Resource';
     }
-    document.getElementById('resource-value').innerText = modelResource['resource'].toFixed(2);
+    document.getElementById('resource-value').innerText = formatNumberToSignificantValue(modelResource['resource']);
     document.getElementById('maxNumTownspeople').innerText = modelResource['townspeopleMax'];
     document.getElementById('numWorkers').innerText = modelResource['townspeopleAvailable'] + '/' 
         + modelResource['townspeopleAlive'];
