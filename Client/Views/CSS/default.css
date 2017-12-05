@@ -167,17 +167,17 @@ body, html {
 }
 @media (max-width: 1680px) {
     .resources-display {
-        font-size: 14px;
+        font-size: 16px;
     }
 }
 @media (max-width: 1200px) {
     .resources-display {
-        font-size: 10px;
+        font-size: 12px;
     }
 }
 @media (max-width: 900px) {
     .resources-display {
-        font-size: 8px;
+        font-size: 10px;
     }
 }
 
