@@ -41,6 +41,7 @@ body, html {
     height: 60px;
     background-color: #505050;
     padding: 9px;
+    overflow-y: auto;
 }
 
 .game-navbar > .btn {
@@ -64,6 +65,7 @@ body, html {
     background-color: #906868;
     padding: 10px;
     border: 3px solid #503838;
+    overflow-y: auto;
 }
 
 .flavor-text-area-message {
@@ -91,6 +93,20 @@ body, html {
     font-size: 20px;
 }
 
+.btn#genericResourceButton {
+    box-shadow: 0 6px #999;
+}
+
+.btn#genericResourceButton:hover {
+    background-color: #DDDDDD;
+}
+
+.btn#genericResourceButton:active {
+    /*background-color: ;*/
+    box-shadow: 0 2px #666;
+    transform: translateY(4px);
+}
+
 .job-container, .building-container {
     float: left;
     display: inline-block;
@@ -106,6 +122,7 @@ body, html {
     padding: 5px;
     text-align: left;
     font-size: 16px;
+    min-width: 250px;
 }
 
 .job-display-box, .building-display-box {
@@ -146,16 +163,19 @@ body, html {
     background-color: #d77;
 }
 
+.job-display-box, .building-display-box {
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+}
+
 #jobResourceCollector > .job-display-box {
     background-image: url('../../Assets/jobs-images/peasant.jpg');
-    background-position-y: -33px;
-    background-size: cover;
 }
 
 #buildingSmallHouse > .building-display-box {
     background-image: url('../../Assets/buildings-images/smallhouse.jpg');
-    background-position-y: -50px;
-    background-size: cover;
 }
 
 /* Resources Display and inner stylings */
