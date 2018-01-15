@@ -48,8 +48,8 @@ $(document).ready(function() {
     } else {
         var cookieLawDismissButton = document.getElementById('cookieDismiss');
         cookieLawDismissButton.addEventListener('click', function() {
-        $(cookieLawBanner).fadeOut(250);
-        localStorage.setItem('cookiesWarningDismissed', true);
+            $(cookieLawBanner).fadeOut(250);
+            localStorage.setItem('cookiesWarningDismissed', true);
         });
     }
     
