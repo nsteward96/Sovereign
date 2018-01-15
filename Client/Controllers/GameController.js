@@ -40,6 +40,19 @@ $(document).ready(function() {
     var genericResourceButton = document.getElementById('genericResourceButton');
     genericResourceButton.addEventListener('click', function() {generateResource();});
     
+    // Check to see if user dismissed the cookies warning.
+    var cookieLawBanner = document.getElementById('cookieLawWarning');
+    var userDismissedCookiesWarning = localStorage.getItem('cookiesWarningDismissed');
+    if (userDismissedCookiesWarning) {
+        cookieLawBanner.style.display = 'none';
+    } else {
+        var cookieLawDismissButton = document.getElementById('cookieDismiss');
+        cookieLawDismissButton.addEventListener('click', function() {
+        $(cookieLawBanner).fadeOut(250);
+        localStorage.setItem('cookiesWarningDismissed', true);
+        });
+    }
+    
     autosaveTimer();
     townspeopleArrivalTimer();
     updateResourceValues();

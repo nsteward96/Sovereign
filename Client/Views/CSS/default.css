@@ -95,6 +95,8 @@ body, html {
 
 .btn#genericResourceButton {
     box-shadow: 0 6px #999;
+    transform: translateY(0px);
+    transition: box-shadow 300ms, transform 300ms;
 }
 
 .btn#genericResourceButton:hover {
@@ -102,9 +104,9 @@ body, html {
 }
 
 .btn#genericResourceButton:active {
-    /*background-color: ;*/
-    box-shadow: 0 2px #666;
-    transform: translateY(4px);
+    box-shadow: 0 1px #666;
+    transform: translateY(5px);
+    transition: box-shadow 300ms, transform 300ms;
 }
 
 .job-container, .building-container {
@@ -211,6 +213,37 @@ body, html {
     text-align: right;
     font-size: inherit;
     padding-right: 10px;
+}
+
+/* Cookie Law Banner Stylings */
+.cookieLawContainer {
+    position: absolute;
+    bottom: 0px;
+    background-color: #333377;
+    font-size: 24px;
+    color: white;
+    margin: 0;
+}
+
+.cookieMessage > a {
+    color: white;
+    text-decoration: underline;
+}
+
+.cookieMessage > a:hover,
+.cookieDismissButton:hover {
+    color: #CCCCCC;
+}
+
+.cookieDismiss {
+    text-align: right;
+}
+
+.cookieDismissButton {
+    font-size: 24px;
+    padding: 0px 2px;
+    text-decoration: underline;
+    cursor: pointer;
 }
 
 /***** End All Main Game Custom Stylings *****/
