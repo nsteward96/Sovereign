@@ -54,6 +54,11 @@ body, html {
     color: white;
 }
 
+.game-navbar > .btn:hover {
+    border-top: 2px solid #888;
+    border-bottom: 2px solid #888;
+}
+
 .game-navbar > .btn.selected {
     border-top: 2px solid white;
     border-bottom: 2px solid white;
@@ -157,12 +162,20 @@ body, html {
     background-color: #7d7;
 }
 
+.add-worker:hover, .buy-building:hover {
+    background-color: #5b5;
+}
+
 .buy-building {
     width: 100%;
 }
 
 .remove-worker, .sell-building {
     background-color: #d77;
+}
+
+.remove-worker:hover, .sell-building:hover {
+    background-color: #b55;
 }
 
 .job-display-box, .building-display-box {
@@ -205,21 +218,30 @@ body, html {
 
 .resource-name {
     text-align: left;
-    font-size: inherit;
     padding-left: 10px;
 }
 
 .resource-value {
     text-align: right;
-    font-size: inherit;
     padding-right: 10px;
+}
+
+.resource-name, .resource-value {
+    font-size: inherit;
+    cursor: default;
+    user-drag: none;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-drag: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
 }
 
 /* Cookie Law Banner Stylings */
 .cookieLawContainer {
     position: absolute;
     bottom: 0px;
-    background-color: #333377;
+    background: linear-gradient(#333377, #444499);
     font-size: 24px;
     color: white;
     margin: 0;
