@@ -186,17 +186,17 @@ body, html {
 }
 
 #jobResourceCollector > .job-display-box {
-    background-image: url('../../Assets/jobs-images/peasant.jpg');
+    background-image: url('../Assets/jobs-images/peasant.jpg');
 }
 
 #buildingSmallHouse > .building-display-box {
-    background-image: url('../../Assets/buildings-images/smallhouse.jpg');
+    background-image: url('../Assets/buildings-images/smallhouse.jpg');
 }
 
 /* Resources Display and inner stylings */
 .resources-display {
     height: 100%;
-    background-image: url('../../Assets/resources_background.png');
+    background-image: url('../Assets/resources_background.png');
     font-size: 18px;
     color: white;
 }

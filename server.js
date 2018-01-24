@@ -11,7 +11,6 @@ app.get('/Client/Views/index.html', function(req, res){
 });
 
 io.on('connection', function(socket){
-    console.log(socket);
     console.log('a user connected');
     socket.on('disconnect', function() {
        console.log('a user disconnected'); 
