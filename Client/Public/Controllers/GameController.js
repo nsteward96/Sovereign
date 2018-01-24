@@ -7,6 +7,7 @@ var modelBuildings = {};
 var model = {};
 
 $(document).ready(function() {
+    
     initModels();
     printIntroductoryMessage();
     

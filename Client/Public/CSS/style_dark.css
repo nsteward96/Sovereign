@@ -1,0 +1,27 @@
+body {
+    height: 100vh;
+}
+
+.page-wrapper {
+    height: 100%;
+    padding: 0px;
+    background-color: #505000;
+}
+
+.main-navbar {
+    width: 100%;
+    height: 30px;
+    background-color: #050500;
+    padding: 0px 2.5px;
+}
+
+/* JQuery Class Modifications */
+.main-navbar > .btn {
+    height: 25px;
+    padding: 2.5px;
+    border-radius: 1px;
+    border-color: #AAA;
+    background-color: #393950;
+    color: #AAA;
+}
+/* End JQuery Class Modifications */
