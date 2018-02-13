@@ -5,9 +5,11 @@ var modelViews = {};
 var modelJobs = {};
 var modelBuildings = {};
 var model = {};
+var socket;
+var username = 'New User';
 
 $(document).ready(function() {
-    
+    socket = io('https://sovereign-nathansteward.c9users.io');
     initModels();
     printIntroductoryMessage();
     
@@ -41,6 +43,11 @@ $(document).ready(function() {
     var genericResourceButton = document.getElementById('genericResourceButton');
     genericResourceButton.addEventListener('click', function() {generateResource();});
     
+    var setUsernameButtonOriginal = document.getElementById('enterUsernameSubmit');
+    setUsernameButtonOriginal.addEventListener('click', function() {
+        setUsername();
+    });
+    
     // Check to see if user dismissed the cookies warning.
     var cookieLawBanner = document.getElementById('cookieLawWarning');
     var userDismissedCookiesWarning = localStorage.getItem('cookiesWarningDismissed');
@@ -54,9 +61,27 @@ $(document).ready(function() {
         });
     }
     
+    // Listener to check if user clicks 'send' button
+    var sendMessageButton = document.getElementById('submitChatText');
+    sendMessageButton.addEventListener('click', function() {
+        var messageField = document.getElementById('chatboxTextField')
+        var message = { username: username, message: messageField.value };
+        socket.emit('chat_message', message)
+        messageField.value = '';
+    });
+    
+    // Socket event listeners
+    socket.on('chat_message_from_server', function(message) {
+        var chatboxTextDisplay = document.getElementById('chatboxTextDisplay');
+        var chatMessage = document.createElement('p');
+        chatMessage.innerText = message.username + ': ' + message.message;
+        chatboxTextDisplay.appendChild(chatMessage)
+    });
+    
     autosaveTimer();
     townspeopleArrivalTimer();
     updateResourceValues();
+    populateTitleList();
 });
 
 // Initializes models with content.
@@ -74,6 +99,7 @@ function initModels() {
     modelResourceRates['smallHouse'] = 2; // Increase of max residents per house
     // Retrieve any stored user resource data.
     var storedResourceData = JSON.parse(localStorage.getItem('modelResource'));
+    var storedUsername = JSON.parse(localStorage.getItem('username'));
     var storedResourceRatesData = JSON.parse(localStorage.getItem('modelResourceRates'));
     // Replace default resource values with saved resource values.
     if (storedResourceData !== null) {
@@ -83,6 +109,12 @@ function initModels() {
         modelResource['townspeopleMax'] = storedResourceData['townspeopleMax'];
         modelResource['townspeopleResourceCollector'] = storedResourceData['townspeopleResourceCollector'];
         modelResource['smallHousesOwned'] = storedResourceData['smallHousesOwned'];
+    }
+    if (storedUsername !== null) {
+        username = storedUsername;
+    } else {
+        var usernameChangeContainer = document.getElementById('enterUsernameContainer');
+        usernameChangeContainer.style = 'display: block;';
     }
     // Replace default resource rate values with saved resource rate values.
     if (storedResourceRatesData !== null) {
@@ -226,6 +258,7 @@ function generateResource() {
 // Initializes the autosave timer to ensure user data persistence.
 //                  User data is autosaved every 15 seconds.
 function autosaveTimer() {
+    localStorage.setItem('username', JSON.stringify(username));
     localStorage.setItem('modelResource', JSON.stringify(modelResource));
     localStorage.setItem('modelResourceRates', JSON.stringify(modelResourceRates));
     window.setTimeout(autosaveTimer, 15000);
@@ -346,5 +379,69 @@ function printIntroductoryMessage() {
     } else if (modelResource['smallHousesOwned'] > 0 && modelResource['smallHousesOwned'] < 15) {
         outputToFlavorTextArea('You are surrounded by a small community. Some describe the land as one previously inhabited ' + 
             'by a prosperous kingdom. However, there are no consistent answers of how it fell.');
+    }
+}
+
+// Changes the user's username based on their name entry and selected title.
+function setUsername() {
+    var new_name = document.getElementById('enterUsernameField').value;
+    var new_title = $('#usernameTitles option:selected')[0].value;
+    var new_username = new_name + ' ' + new_title; 
+    
+    if (verifyUsername(new_name)) {
+        socket.emit('namechange', { new_username: new_username, previous_username: username });
+        username = new_username;
+        
+        var changeUsernameContainer = document.getElementById('enterUsernameContainer');
+        changeUsernameContainer.style = 'display: none;'
+    }
+}
+
+// Verifies that a username follows some basic rules. Returns false if an invalid username is submitted.
+function verifyUsername(name) {
+    if (name.length == 0 || name.length > 32) {
+        return false;
+    }
+    return true;
+}
+
+// Sets up the list of titles that a user can select from in the name-setup process.
+function populateTitleList() {
+    var titleList = [
+        'the Absolute', 'the Anarchist', 'the Antsy', 'the Archivist', 'the Archon',
+        'the Beautiful', 'the Bold', 'the Bookworm', 'the Brash', 'the Carver', 'the Charmer',
+        'the Clarity', 'the Corrupter', 'the Cracked', 'the Crazed', 'the Creator', 'the Cretin',
+        'the Dank', 'the Dark', 'the Dear', 'of the Deep', 'the Deranged', 'the Desperate',
+        'the Destructor', 'the Determined', 'the Dirk', 'the Doombringer', 'the Doppleganger',
+        'the Dude', 'the Duke', 'the Dumb', 'the Eager', 'the Eccentric', 'the Einstein',
+        'the Energetic', 'the Entertainer', 'the Extreme',
+        'the Expert', 'the Fair', 'the Fancy', 'the Fence', 'the Fickle', 
+        'the Fiddler', 'the Fine', 'the Fake', 'the Gambler', 'the Gatsby', 
+        'the Gorgeous', 'the Great', 'the Green', 'the Grey', 'the Hated', 'the Hatred', 
+        'the Hack', 'the Heckler', 'the Herring', 'the Horrible', 'the Hunter', 
+        'the Idle', 'the Insane', 'the Jack', 'the Joker', 'the Joe', 
+        'the Kaiser', 'the Kid', 'the King', 'the Knack', 'the Linguist', 
+        'the Listener', 'the Little', 'the Lamb', 'the Manly', 'the Master', 
+        'the Mean', 'the Meek', 'the Mentor', 'the Misanthrope', 'the Miserly', 
+        'the Minx', 'the Mook', 'the Moxie', 'the Named', 'the Nameless', 
+        'the Natty', 'the Naughty', 'of the Nether', 'the Needler', 'the Odd', 
+        'the Opponent', 'the Opportunist', 'the Philanthropist', 'the Pig', 
+        'the Poor', 'the Pretty', 'the Queen', 'the Queasy', 'the Ranger', 
+        'the Rapper', 'the Red', 'the Regular', 'the Ridiculous', 
+        'the Rude', 'the Runt', 'the Rustler', 'the Spawn', 
+        'the Strange', 'the Swan', 'the Thorn', 'the Tormentor', 
+        'the Traitor', 'the Trite', 'the Underhanded', 'the Untamed', 
+        'the Viper', 'the Vixen', 'the Wanted', 'the Witty', 'the Yapper', 'the Zealous'
+    ];
+    var randomTitleNumber = Math.floor(Math.random() * titleList.length);
+    var titleOptionContainer = document.getElementById('usernameTitles');
+    for (var i = 0; i < titleList.length; i++) {
+        var optionObject = document.createElement('option');
+        optionObject.setAttribute('value', titleList[i]);
+        optionObject.innerText = titleList[i];
+        if (i === randomTitleNumber) {
+            optionObject.setAttribute('selected', 'selected');
+        }
+        titleOptionContainer.appendChild(optionObject);
     }
 }

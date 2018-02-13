@@ -196,10 +196,15 @@ body, html {
 /* Resources Display and inner stylings */
 .resources-display {
     height: 100%;
-    background-image: url('../Assets/resources_background.png');
     font-size: 18px;
     color: white;
 }
+
+.resources-row {
+    height: 75%;
+    background-image: url('../Assets/resources_background.png');
+}
+
 @media (max-width: 1680px) {
     .resources-display {
         font-size: 16px;
@@ -235,6 +240,86 @@ body, html {
     -webkit-user-drag: none;
     -webkit-user-select: none;
     -ms-user-select: none;
+}
+
+/* Chatbox Stylings */
+.chatbox-row {
+    height: 25%;
+}
+
+.chatbox-area {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(to right, #BBB, #CCC);
+    background-color: #88A;
+    border: 2px solid #222;
+    padding: 0px;
+}
+
+.chatbox-text-display {
+    color: black;
+    width: 100%;
+    height: calc(100% - 22px);
+    padding: 0px 5px;
+    overflow-y: auto;
+    word-wrap: break-word;
+}
+
+.chatbox-text-area {
+    width: 100%;
+    height: 22px;
+    margin: 0;
+}
+
+.chatbox-text-field, .submit-chat-text {
+    height: 22px;
+    padding: 0;
+}
+
+.submit-chat-text {
+    cursor: pointer;
+    background-color: white;
+    line-height: .95em;
+}
+
+.submit-chat-text:hover {
+    background-color: #DDDDDD;
+}
+
+/* Enter Username Banner Stylings */
+.enter-username-container {
+    text-align: center;
+    vertical-align: center;
+    position: absolute;
+    display: none;
+    height: 100%;
+    background-color: #000;
+    opacity: 0.8;
+    margin: 0;
+    top: 0px;
+    z-index: 10000;
+}
+
+.enter-username {
+    color: white;
+    font-family: 'Fondamento', cursive;
+    font-size: 32px;
+    min-width: 250px;
+    padding: 0 25%;
+    top: 30%;
+}
+
+.enter-username-field {
+    
+}
+
+.enter-username-submit {
+    border-radius: 2px;
+    cursor: pointer;
+}
+
+.username-titles {
+    min-width: 250px;
 }
 
 /* Cookie Law Banner Stylings */

@@ -40,10 +40,21 @@
             </div>
             <div class="row game-area">
                 <div class="col-sm-4 col-md-3 resources-display">
-                    <div class="row">
+                    <div class="row resources-row">
                         <!-- Resources list goes here -->
                         <div class="col-sm-8 col-lg-9 remove-padding resource-name" id="resource-name"></div>
                         <div class="col-sm-4 col-lg-3 remove-padding resource-value" id="resource-value"></div>
+                    </div>
+                    <div class="row chatbox-row">
+                        <div class="col-sm-12 chatbox-area" id="chatboxArea">
+                            <div class="chatbox-text-display" id="chatboxTextDisplay">
+                                <!-- Chatbox text to other players goes here -->
+                            </div>
+                            <div class="row chatbox-text-area" id="chatboxTextArea">
+                                <input type="text" class="col-sm-9 chatbox-text-field" id="chatboxTextField" placeholder="Type your message..." />
+                                <button class="col-sm-3 submit-chat-text" id="submitChatText">Send</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="col-sm-6 col-md-7 remove-padding">
@@ -91,6 +102,17 @@
                 <div class="col-sm-2 flavor-text-area" id="flavorTextArea">
                     <!-- Output flavor text to player goes here -->
                 </div>
+                <div class="row col-sm-12 enter-username-container" id="enterUsernameContainer">
+                    <div class="col-sm-12 enter-username" id="enterUsername">
+                        What name will you make for yourself? <br />
+                        <input type="text" class="enter-username-field" id="enterUsernameField" />
+                        <select name="usernameTitles" class="username-titles" id="usernameTitles"></select>
+                        <br /><br />
+                        <button class="enter-username-submit" id="enterUsernameSubmit">
+                            This is my fate
+                        </button>
+                    </div>
+                </div>
                 <div class="row col-sm-12 cookieLawContainer" id="cookieLawWarning">
                     <div class="col-sm-8 col-md-9 cookieMessage">
                         This site uses cookies to store data on your browser. <a href="https://cookiesandyou.com/" target="_blank">Learn more.</a>
@@ -110,9 +132,6 @@
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
         <script src="/Controllers/StringFormatController.js"></script>
         <script src="/Controllers/GameController.js"></script>
-        <script>
-            var socket = io.connect();
-        </script>
         <!-- End Scripts -->
     </body>
 </html>
