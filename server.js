@@ -19,7 +19,7 @@ io.on('connection', function(socket){
     socket.on('namechange', (data) => {
         console.log('\'' + data.previous_username + '\'' + ' changed name to ' + 
             '\'' + data.new_username + '\'');
-    })
+    });
     socket.on('disconnect', function() {
        console.log('a user disconnected'); 
     });
