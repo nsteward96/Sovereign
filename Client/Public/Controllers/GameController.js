@@ -110,7 +110,6 @@ function initModels() {
         modelResource['townspeopleResourceCollector'] = storedResourceData['townspeopleResourceCollector'];
         modelResource['smallHousesOwned'] = storedResourceData['smallHousesOwned'];
     }
-    console.log(storedUsername !== null);
     if (storedUsername !== null) {
         username = storedUsername;
     } else {
@@ -383,33 +382,27 @@ function printIntroductoryMessage() {
     }
 }
 
-function promptUserEnterUsername() {
-    
-
-}
-
 // Changes the user's username based on their name entry and selected title.
 function setUsername() {
     var new_name = document.getElementById('enterUsernameField').value;
     var new_title = $('#usernameTitles option:selected')[0].value;
     var new_username = new_name + ' ' + new_title; 
     
-    if (verifyUsername(new_username)) {
+    if (verifyUsername(new_name)) {
         socket.emit('namechange', { new_username: new_username, previous_username: username });
         username = new_username;
         
         var changeUsernameContainer = document.getElementById('enterUsernameContainer');
         changeUsernameContainer.style = 'display: none;'
     }
-    
 }
 
-// Verifies that a username follows some basic rules
+// Verifies that a username follows some basic rules. Returns false if an invalid username is submitted.
 function verifyUsername(name) {
-    if (name.length <= 2 || name.length > 32) {
+    if (name.length == 0 || name.length > 32) {
         return false;
     }
-    return true
+    return true;
 }
 
 // Sets up the list of titles that a user can select from in the name-setup process.
