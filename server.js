@@ -12,6 +12,14 @@ app.get('/Client/Views/index.html', function(req, res){
 
 io.on('connection', function(socket){
     console.log('a user connected');
+    socket.on('chat_message', (data) => {
+        console.log(data.username + ': ' + data.message);
+        io.emit('chat_message_from_server', data);
+    });
+    socket.on('namechange', (data) => {
+        console.log('\'' + data.previous_username + '\'' + ' changed name to ' + 
+            '\'' + data.new_username + '\'');
+    })
     socket.on('disconnect', function() {
        console.log('a user disconnected'); 
     });
