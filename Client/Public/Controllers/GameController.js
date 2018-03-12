@@ -1,17 +1,21 @@
+// Problem: There is a split second where a client is transmitting data, messing up the data the host serves.
 var modelResource = {};
 var modelResourceRates = {};
 var modelResourceVelocity = {};
 var modelViews = {};
 var modelJobs = {};
 var modelBuildings = {};
-var model = {};
 var socket;
 var username = 'New User';
+var game_password = '';
+var is_host = true;
+var is_in_a_server = false;
 
 $(document).ready(function() {
     socket = io('https://sovereign-nathansteward.c9users.io');
     initModels();
     printIntroductoryMessage();
+    setupDynamicEventListeners();
     
     // Generate list of game nav buttons; add listeners to update view when clicked.
     var gameNavButtonArray = 
@@ -23,25 +27,6 @@ $(document).ready(function() {
     for (let i = 0; i < gameNavButtonArray.length; i++) {
         gameNavButtonArray[i].addEventListener('click', function() {updateSelectedView(gameNavButtonArray[i]);});
     }
-    var addWorkerButtonArray = document.getElementsByClassName('add-worker');
-    var removeWorkerButtonArray = document.getElementsByClassName('remove-worker');
-    for (let i = 0; i < addWorkerButtonArray.length; i++) {
-        addWorkerButtonArray[i].addEventListener('click', function() {
-            allocateWorker(addWorkerButtonArray[i]);
-        });
-        removeWorkerButtonArray[i].addEventListener('click', function() {
-            deallocateWorker(removeWorkerButtonArray[i]);
-        });
-    }
-    var buyBuildingButtonArray = document.getElementsByClassName('buy-building');
-    for (let i = 0; i < buyBuildingButtonArray.length; i++) {
-        buyBuildingButtonArray[i].addEventListener('click', function() {
-            buyBuilding(buyBuildingButtonArray[i]);
-        });
-    }
-    
-    var genericResourceButton = document.getElementById('genericResourceButton');
-    genericResourceButton.addEventListener('click', function() {generateResource();});
     
     var setUsernameButtonOriginal = document.getElementById('enterUsernameSubmit');
     setUsernameButtonOriginal.addEventListener('click', function() {
@@ -61,13 +46,47 @@ $(document).ready(function() {
         });
     }
     
-    // Listener to check if user clicks 'send' button
+    // Listener to check if user clicks 'send' button on chat
     var sendMessageButton = document.getElementById('submitChatText');
     sendMessageButton.addEventListener('click', function() {
-        var messageField = document.getElementById('chatboxTextField')
+        var messageField = document.getElementById('chatboxTextField');
         var message = { username: username, message: messageField.value };
-        socket.emit('chat_message', message)
+        socket.emit('chat_message', message);
         messageField.value = '';
+    });
+    
+    // User wants to bring up menu to set game password
+    var setGamePasswordButton = document.getElementById('setGamePassword');
+    setGamePasswordButton.addEventListener('click', function() {
+        revealOverlay('setGamePasswordContainer');
+    });
+    
+    var setGamePasswordCancelButton = document.getElementById('setGamePasswordCancel');
+    setGamePasswordCancelButton.addEventListener('click', function() {
+        hideOverlay();
+    });
+    
+    var setGamePasswordSubmitButton = document.getElementById('setGamePasswordSubmit');
+    var setGamePasswordField = document.getElementsByClassName('set-game-password-field')[0];
+    setGamePasswordSubmitButton.addEventListener('click', function() {
+        if (game_password != setGamePasswordField.value) {
+            game_password = setGamePasswordField.value;
+            joinGameSession(game_password);
+            hideOverlay();
+        } else {
+            console.log('You are already in that server!');
+        }
+    });
+    
+    var resetGamePasswordButton = document.getElementById('resetGamePassword');
+    resetGamePasswordButton.addEventListener('click', function() {
+        if (is_in_a_server) {
+            leaveGameSession();
+            is_in_a_server = false;
+            game_password = '';
+        } else {
+            console.log('You don\'t have a password set!');   
+        }
     });
     
     // Socket event listeners
@@ -75,7 +94,42 @@ $(document).ready(function() {
         var chatboxTextDisplay = document.getElementById('chatboxTextDisplay');
         var chatMessage = document.createElement('p');
         chatMessage.innerText = message.username + ': ' + message.message;
-        chatboxTextDisplay.appendChild(chatMessage)
+        chatboxTextDisplay.appendChild(chatMessage);
+    });
+    socket.on('new_player_joined_room', function(player_name) {
+        var chatboxTextDisplay = document.getElementById('chatboxTextDisplay');
+        var chatMessage = document.createElement('p');
+        chatMessage.innerText = player_name + ' has joined the room!';
+        chatboxTextDisplay.appendChild(chatMessage);
+    });
+    socket.on('server_output_to_flavor_text_area', function(message) {
+        outputToFlavorTextArea(message); 
+    });
+    socket.on('become_client', function(data) {
+        is_host = false;
+        is_in_a_server = true;
+    });
+    socket.on('become_host', function() {
+        is_host = true;
+        is_in_a_server = true;
+    });
+    socket.on('server_says_allocate_worker', function(data) {
+        allocateWorker(data);
+    });
+    socket.on('server_says_deallocate_worker', function(data) {
+        deallocateWorker(data);
+    });
+    socket.on('server_says_buy_building', function(data) {
+        buyBuilding(data);
+    });
+    socket.on('server_says_generate_resource', function() {
+        generateResource();
+    });
+    socket.on('server_update_data', function(data) {
+        updateWithDataFromServer(data);
+    });
+    socket.on('kick_from_room', function(data) {
+        leaveGameSession();
     });
     
     autosaveTimer();
@@ -113,8 +167,7 @@ function initModels() {
     if (storedUsername !== null) {
         username = storedUsername;
     } else {
-        var usernameChangeContainer = document.getElementById('enterUsernameContainer');
-        usernameChangeContainer.style = 'display: block;';
+        revealOverlay('enterUsername');
     }
     // Replace default resource rate values with saved resource rate values.
     if (storedResourceRatesData !== null) {
@@ -145,7 +198,7 @@ function initModels() {
             id: document.getElementById('jobResourceCollector').id,
             allocateButton: document.getElementById('jobResourceCollector').children[2],
             deallocateButton: document.getElementById('jobResourceCollector').children[3]
-        }
+        };
     // Init the buildings model.
     modelBuildings['smallHouse'] = 
         {
@@ -154,7 +207,7 @@ function initModels() {
             price: determineCurrentPriceBuilding(50, modelResource['smallHousesOwned']),
             buyButton: document.getElementById('buildingSmallHouseBuyButton'),
             sellButton: document.getElementById('buildingSmallHouseSellButton')
-        }
+        };
     // Init the flavor text area view.
     var flavorTextArea = document.getElementById('flavorTextArea');
 }
@@ -182,8 +235,7 @@ function updateSelectedView(divBeingSelected) {
 // User assigns a job to an available townsperson.
 function allocateWorker(addWorkerButton) {
     if (modelResource['townspeopleAvailable'] > 0) {
-        var jobId = addWorkerButton.parentElement.id;
-        if (jobId === 'jobResourceCollector') {
+        if (addWorkerButton === 'jobResourceCollector') {
             modelResource['townspeopleResourceCollector']++;
         }
         modelResource['townspeopleAvailable']--;
@@ -200,8 +252,7 @@ function allocateWorker(addWorkerButton) {
 
 // User takes away a job assigned to an available townsperson (creating an available townsperson).
 function deallocateWorker(removeWorkerButton) {
-    var jobId = removeWorkerButton.parentElement.id;
-    if (jobId === 'jobResourceCollector' && modelResource['townspeopleResourceCollector'] > 0) {
+    if (removeWorkerButton === 'jobResourceCollector' && modelResource['townspeopleResourceCollector'] > 0) {
         modelResource['townspeopleResourceCollector']--;
         modelResource['townspeopleAvailable']++;
         updateResourceVelocity();
@@ -217,14 +268,13 @@ function deallocateWorker(removeWorkerButton) {
 
 // User buys a building
 function buyBuilding(buyBuildingButton) {
-    var buildingId = buyBuildingButton.parentElement.id;
     for (let building in modelBuildings) {
-        if (modelBuildings[building].id === buildingId && modelBuildings[building].price <= modelResource['resource']) {
+        if (modelBuildings[building].id === buyBuildingButton && modelBuildings[building].price <= modelResource['resource']) {
             modelResource['resource'] -= modelBuildings[building].price;
             modelResource['smallHousesOwned']++;
             modelBuildings[building].price = 
                 determineCurrentPriceBuilding(modelBuildings[building].basePrice, modelResource['smallHousesOwned']);
-            updateMaxResources();
+            updateMaxTownspeople();
         }
     }
 }
@@ -258,85 +308,96 @@ function generateResource() {
 // Initializes the autosave timer to ensure user data persistence.
 //                  User data is autosaved every 15 seconds.
 function autosaveTimer() {
-    localStorage.setItem('username', JSON.stringify(username));
-    localStorage.setItem('modelResource', JSON.stringify(modelResource));
-    localStorage.setItem('modelResourceRates', JSON.stringify(modelResourceRates));
+    if (is_host) {
+        localStorage.setItem('modelResource', JSON.stringify(modelResource));
+        localStorage.setItem('modelResourceRates', JSON.stringify(modelResourceRates));
+    }
     window.setTimeout(autosaveTimer, 15000);
 }
 
 // Initializes a timer that will result in new townspeople arriving in town.
 function townspeopleArrivalTimer() {
-    if (modelResource['townspeopleAlive'] < modelResource['townspeopleMax']) {
-        var incomingTownspeople = Math.round(Math.random() * 3);
-        if (modelResource['townspeopleAlive'] + incomingTownspeople > modelResource['townspeopleMax']) {
-            incomingTownspeople = modelResource['townspeopleMax'] - modelResource['townspeopleAlive'];
+    if (is_host && is_in_a_server) {
+        if (modelResource['townspeopleAlive'] < modelResource['townspeopleMax']) {
+            var message = '';
+            var incomingTownspeople = Math.round(Math.random() * 3);
+            if (modelResource['townspeopleAlive'] + incomingTownspeople > modelResource['townspeopleMax']) {
+                incomingTownspeople = modelResource['townspeopleMax'] - modelResource['townspeopleAlive'];
+            }
+            
+            var randomChanceMessage = Math.random();
+            if (incomingTownspeople === 1) {
+                if (Math.ceil(randomChanceMessage*4) === 1) {
+                    message = 'A young lad, barely a man, approaches. He asks if he can work ' + 
+                        'in exchange for a place to call "home".';
+                } else if (Math.ceil(randomChanceMessage*4) === 2) {
+                    message = 'An older gentleman saunters into view. He smiles at the sight ' + 
+                        'of friendly faces. He offers his services in exchange for shelter.';
+                } else if (Math.ceil(randomChanceMessage*4) === 3) {
+                    message = 'A young woman strides towards the camp. She\'s been exploring the ' + 
+                        'area and now seeks respite.';
+                } else if (Math.ceil(randomChanceMessage*4) === 4) {
+                    message = 'An older woman, seasoned by hard times, shuffles towards you. ' +
+                        'She offers her wisdom and experience in exchange for safety.';
+                }
+            } else if (incomingTownspeople === 2) {
+                if (Math.ceil(randomChanceMessage*3) === 1) {
+                    message = 'A weathered gentleman and his son venture into your camp. ' + 
+                    'He desires shelter for himself and his boy, offering honest work.';
+                } else if (Math.ceil(randomChanceMessage*3) === 2) {
+                    message = 'A woman and her daughter approach. They seek respite from ' + 
+                        'the elements, and know some invaluable trade skills.';
+                } else if (Math.ceil(randomChanceMessage*3) === 3) {
+                    message = 'A woman and her son approach. The woman is tired, and requires ' + 
+                    'some medical attention. With some time, they prove to be valuable allies.';
+                }
+            } else if (incomingTownspeople === 3) {
+                if (Math.ceil(randomChanceMessage*3) === 1) {
+                    message = 'A man, woman, and their daughter race into town. ' + 
+                        'They discovered some raging wildlife and ran for the last mile or so. ' + 
+                        'After they catch their breath, you point them to an unfilled house and they ' + 
+                        'offer their abilities with gratitude.';
+                } else if (Math.ceil(randomChanceMessage*3) === 2) {
+                    message = 'Three women come into town without a word. ' + 
+                        'Despite your prying, they do not say a word. But they do take up ' + 
+                        'residence in one of your open homes, and willingly accept work.';
+                } else if (Math.ceil(randomChanceMessage*3) === 3) {
+                    message = 'Three men stride into town, seeking work. ' + 
+                        '\'If anything needs lifting, just call us!\' Good labor is always ' + 
+                        'welcome to come by.';
+                }
+            }
+            
+            if (message !== '') {
+                outputToFlavorTextArea(message);
+            }
+            modelResource['townspeopleAlive'] += incomingTownspeople;
+            modelResource['townspeopleAvailable'] += incomingTownspeople;
         }
-        var randomChanceMessage = Math.random();
-        if (incomingTownspeople === 1) {
-            if (Math.ceil(randomChanceMessage*4) === 1) {
-                outputToFlavorTextArea('A young lad, barely a man, approaches. He asks if he can work ' + 
-                    'in exchange for a place to call "home".');
-            } else if (Math.ceil(randomChanceMessage*4) === 2) {
-                outputToFlavorTextArea('An older gentleman saunters into view. He smiles at the sight ' + 
-                    'of friendly faces. He offers his services in exchange for shelter.');
-            } else if (Math.ceil(randomChanceMessage*4) === 3) {
-                outputToFlavorTextArea('A young woman strides towards the camp. She\'s been exploring the ' + 
-                    'area and now seeks respite.');
-            } else if (Math.ceil(randomChanceMessage*4) === 4) {
-                outputToFlavorTextArea('An older woman, seasoned by hard times, shuffles towards you. ' +
-                    'She offers her wisdom and experience in exchange for safety.');
-            }
-        } else if (incomingTownspeople === 2) {
-            if (Math.ceil(randomChanceMessage*3) === 1) {
-                outputToFlavorTextArea('A weathered gentleman and his son venture into your camp. ' + 
-                'He desires shelter for himself and his boy, offering honest work.');
-            } else if (Math.ceil(randomChanceMessage*3) === 2) {
-                outputToFlavorTextArea('A woman and her daughter approach. They seek respite from ' + 
-                    'the elements, and know some invaluable trade skills.');
-            } else if (Math.ceil(randomChanceMessage*3) === 3) {
-                outputToFlavorTextArea('A woman and her son approach. The woman is tired, and requires ' + 
-                'some medical attention. With some time, they prove to be valuable allies.');
-            }
-        } else if (incomingTownspeople === 3) {
-            if (Math.ceil(randomChanceMessage*3) === 1) {
-                outputToFlavorTextArea('A man, woman, and their daughter race into town. ' + 
-                    'They discovered some raging wildlife and ran for the last mile or so. ' + 
-                    'After they catch their breath, you point them to an unfilled house and they ' + 
-                    'offer their abilities with gratitude.');
-            } else if (Math.ceil(randomChanceMessage*3) === 2) {
-                outputToFlavorTextArea('Three women come into town without a word. ' + 
-                    'Despite your prying, they do not say a word. But they do take up ' + 
-                    'residence in one of your open homes, and willingly accept work.');
-            } else if (Math.ceil(randomChanceMessage*3) === 3) {
-                outputToFlavorTextArea('Three men stride into town, seeking work. ' + 
-                    '\'If anything needs lifting, just call us!\' Good labor is always ' + 
-                    'welcome to come by.');
-            }
-        }
-        modelResource['townspeopleAlive'] += incomingTownspeople;
-        modelResource['townspeopleAvailable'] += incomingTownspeople;
     }
     window.setTimeout(townspeopleArrivalTimer, 12500);
 }
 
+// Updates the rate at which resources are added to your total.
 function updateResourceVelocity() {
     modelResourceVelocity['resourceCollector'] = 
         modelResource['townspeopleResourceCollector'] * modelResourceRates['resourceCollector'];
 }
 
-function updateMaxResources() {
+// Keeps track of how many townspeople you can have max.
+function updateMaxTownspeople() {
     modelResource['townspeopleMax'] = modelResource['smallHousesOwned'] * modelResourceRates['smallHouse'];
 }
 
 // Functionality: Update page-displayed resource values on an interval.
 function updateResourceValues() {
     calculateResourceValuePerTick();
-    resourceName = document.getElementById('resource-name');
+    var resourceName = document.getElementById('resource-name');
     if (modelResourceVelocity['resourceCollector'] > 0) {
         resourceName.innerText = 'Resource (+' + formatNumberToSignificantValue(modelResourceVelocity['resourceCollector']) + ')';
-    } else if (modelResourceVelocity < 0) {
+    } else if (modelResourceVelocity['resourceCollector'] < 0) {
         resourceName.innerText = 
-            'Resource (' + formatNumberToSignificantValue(modelResourceVelocity['resourceCollector']) + ')';
+            'Resource (-' + formatNumberToSignificantValue(modelResourceVelocity['resourceCollector']) + ')';
     } else {
         resourceName.innerText = 'Resource';
     }
@@ -346,17 +407,26 @@ function updateResourceValues() {
         + modelResource['townspeopleAlive'];
     document.getElementById('numWorkersResourceCollector').innerText = modelResource['townspeopleResourceCollector'];
     document.getElementById('numOwnedSmallHouses').innerText = modelResource['smallHousesOwned'];
-    window.setTimeout(updateResourceValues, 50);
+    
+    if (is_host && is_in_a_server) {
+        var data = { resource_data: modelResource, resource_rates_data: modelResourceRates };
+        socket.emit('data_update', data);
+    }
+    
+    window.setTimeout(updateResourceValues, 100);
 }
 
 // Update the actual values of resources.
 function calculateResourceValuePerTick() {
-    //Ticks are 20 times a second, or every .05s, thus the magic number .05.
-    modelResource['resource'] += modelResourceVelocity['resourceCollector']*.05;
+    //Ticks are 10 times a second, or every .1s, thus the magic number .1.
+    modelResource['resource'] += modelResourceVelocity['resourceCollector']*.1;
 }
 
 // Output text to the flavor text area.
 function outputToFlavorTextArea(text) {
+    if (is_host && is_in_a_server) {
+        socket.emit('host_broadcast_output_to_flavor_text_area', text);
+    }
     var message = document.createElement('div');
     message.classList = 'flavor-text-area-message';
     var messageContent = document.createElement('p');
@@ -368,6 +438,11 @@ function outputToFlavorTextArea(text) {
     $(flavorTextArea).prepend(message);
     var messageJustAppended = flavorTextArea.childNodes[0];
     $(messageJustAppended).fadeIn(350);
+}
+
+// Remove messages from flavor text area.
+function emptyFlavorTextArea() {
+    $(document.getElementById('flavorTextArea').children).remove();
 }
 
 // Print some flavor text to the console when the user starts a new session.
@@ -392,8 +467,9 @@ function setUsername() {
         socket.emit('namechange', { new_username: new_username, previous_username: username });
         username = new_username;
         
-        var changeUsernameContainer = document.getElementById('enterUsernameContainer');
-        changeUsernameContainer.style = 'display: none;'
+        var overlayContainer = document.getElementById('overlayContainer');
+        overlayContainer.style = 'display: none;';
+        localStorage.setItem('username', JSON.stringify(username));
     }
 }
 
@@ -444,4 +520,149 @@ function populateTitleList() {
         }
         titleOptionContainer.appendChild(optionObject);
     }
+}
+
+function revealOverlay(id) {
+    var overlayContainer = document.getElementById('overlayContainer');
+    var overlayContainerChildren = overlayContainer.children;
+    for (var i = 0; i < overlayContainerChildren.length; i++) {
+        overlayContainerChildren[i].classList.remove('selected');
+        overlayContainerChildren[i].style = 'display: none;';
+    }
+    var selectedDiv = document.getElementById(id);
+    selectedDiv.classList.add('selected');
+    selectedDiv.style = 'display: block;';
+    overlayContainer.style = 'display: block;';
+}
+
+function hideOverlay() {
+    document.getElementById('overlayContainer').style = 'display; none;';
+}
+
+function joinGameSession(game_password) {
+    var data = { room: game_password, player_name: username };
+    socket.emit('namespace_change', data);
+}
+
+function leaveGameSession() {
+    socket.emit('reset_namespace');
+    if (is_host && is_in_a_server) {
+        localStorage.setItem('modelResource', JSON.stringify(modelResource));
+        localStorage.setItem('modelResourceRates', JSON.stringify(modelResourceRates));
+    }
+    window.setTimeout(function() {
+        if (!(is_host)) {
+            emptyFlavorTextArea();
+        }
+        is_host = true;
+        is_in_a_server = false;
+        game_password = '';
+        initModels();
+    }, 250);
+}
+
+function setupDynamicEventListeners() {
+    var addWorkerButtonArray = document.getElementsByClassName('add-worker');
+    var addWorkerButtonIdArray = [];
+    for (let i = 0; i < addWorkerButtonArray.length; i++) {
+        addWorkerButtonIdArray[i] = addWorkerButtonArray[i].parentElement.id;
+    }
+    var removeWorkerButtonArray = document.getElementsByClassName('remove-worker');
+    var removeWorkerButtonIdArray = [];
+    for (let i = 0; i < removeWorkerButtonArray.length; i++) {
+        removeWorkerButtonIdArray[i] = removeWorkerButtonArray[i].parentElement.id;
+    }
+    for (let i = 0; i < addWorkerButtonArray.length; i++) {
+        addWorkerButtonArray[i].addEventListener('click', function() {
+            if (is_host) {
+                allocateWorker(addWorkerButtonIdArray[i]);
+            } else {
+                socket.emit('allocate_worker', addWorkerButtonIdArray[i]);
+            }
+        });
+        removeWorkerButtonArray[i].addEventListener('click', function() {
+            if (is_host) {
+                deallocateWorker(removeWorkerButtonIdArray[i]);
+            } else {
+                socket.emit('deallocate_worker', removeWorkerButtonIdArray[i]);
+            }
+        });
+    }
+    var buyBuildingButtonArray = document.getElementsByClassName('buy-building');
+    var buyBuildingButtonIdArray = [];
+    for (let i = 0; i < buyBuildingButtonArray.length; i++) {
+        buyBuildingButtonIdArray[i] = buyBuildingButtonArray[i].parentElement.id;
+    }
+    for (let i = 0; i < buyBuildingButtonArray.length; i++) {
+        buyBuildingButtonArray[i].addEventListener('click', function() {
+            if (is_host) {
+                buyBuilding(buyBuildingButtonIdArray[i]);
+            } else {
+                socket.emit('buy_building', buyBuildingButtonIdArray[i]);
+            }
+        });
+    }
+    
+    var genericResourceButton = document.getElementById('genericResourceButton');
+    genericResourceButton.addEventListener('click', function() {
+        if (is_host) {
+            generateResource();
+        } else {
+            socket.emit('generate_resource');
+        }
+    });
+}
+
+// Updates the current game interface with data from another player's hosted game.
+function updateWithDataFromServer(data) {
+    var playerResourceData = data.resource_data;
+    var playerResourceRatesData = data.resource_rates_data;
+    // Replace default resource values with saved resource values.
+    if (playerResourceData !== null) {
+        modelResource['resource'] = playerResourceData['resource'];
+        modelResource['townspeopleAvailable'] = playerResourceData['townspeopleAvailable'];
+        modelResource['townspeopleAlive'] = playerResourceData['townspeopleAlive'];
+        modelResource['townspeopleMax'] = playerResourceData['townspeopleMax'];
+        modelResource['townspeopleResourceCollector'] = playerResourceData['townspeopleResourceCollector'];
+        modelResource['smallHousesOwned'] = playerResourceData['smallHousesOwned'];
+    }
+    // Replace default resource rate values with resource rate values.
+    if (playerResourceRatesData !== null) {
+        modelResourceRates['resourceCollector'] = playerResourceRatesData['resourceCollector'];
+    }
+    // Init all resource generation velocities (current rate for the user)
+    modelResourceVelocity['resourceCollector'] = 
+        modelResourceRates['resourceCollector'] * modelResource['townspeopleResourceCollector'];
+    // Init the views model.
+    modelViews['resourceGenerationView'] = 
+        {
+            view: document.getElementById('resourceGenerationView'),
+            navButton: document.getElementById('resourceGenerationNavButton')
+        };
+    modelViews['townView'] = 
+        {
+            view: document.getElementById('manageTownView'),
+            navButton: document.getElementById('manageTownNavButton')
+        };
+    modelViews['jobsView'] =
+        {
+            view: document.getElementById('manageJobsView'),
+            navButton: document.getElementById('manageJobsNavButton')
+        };
+    // Init the jobs model.
+    modelJobs['resourceCollector'] = 
+        {
+            id: document.getElementById('jobResourceCollector').id,
+            allocateButton: document.getElementById('jobResourceCollector').children[2],
+            deallocateButton: document.getElementById('jobResourceCollector').children[3]
+        };
+    // Init the buildings model.
+    modelBuildings['smallHouse'] = 
+        {
+            id: document.getElementById('buildingSmallHouse').id,
+            basePrice: 50,
+            price: determineCurrentPriceBuilding(50, modelResource['smallHousesOwned']),
+            buyButton: document.getElementById('buildingSmallHouseBuyButton'),
+            sellButton: document.getElementById('buildingSmallHouseSellButton')
+        };
 }
