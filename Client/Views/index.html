@@ -35,7 +35,8 @@
         <div class="container-fluid page-wrapper">
             <div class="row page-navbar-container">
                 <div class="col-xs-12 page-navbar">
-                    <!-- Nav buttons go here -->
+                    <button class="text-button" id="setGamePassword">Set game password</button><span class="unselectable">&nbsp;|</span>
+                    <button class="text-button" id="resetGamePassword">Reset game password</button><span class="unselectable">&nbsp;|</span>
                 </div>
             </div>
             <div class="row game-area">
@@ -102,8 +103,8 @@
                 <div class="col-sm-2 flavor-text-area" id="flavorTextArea">
                     <!-- Output flavor text to player goes here -->
                 </div>
-                <div class="row col-sm-12 enter-username-container" id="enterUsernameContainer">
-                    <div class="col-sm-12 enter-username" id="enterUsername">
+                <div class="row col-sm-12 overlay-container" id="overlayContainer">
+                    <div class="col-sm-12 enter-username selected" id="enterUsername">
                         What name will you make for yourself? <br />
                         <input type="text" class="enter-username-field" id="enterUsernameField" />
                         <select name="usernameTitles" class="username-titles" id="usernameTitles"></select>
@@ -112,13 +113,24 @@
                             This is my fate
                         </button>
                     </div>
+                    <div class="col-sm-12 set-game-password-container" id="setGamePasswordContainer">
+                        Set your game password
+                        <input type="text" class="set-game-password-field" id="" />
+                        <button class="set-game-password-submit" id="setGamePasswordSubmit">Ok</button>
+                        <button class="set-game-password-cancel" id="setGamePasswordCancel">Cancel</button>
+                        <p class="set-game-password-explanation">
+                            Set your game password if you want to play with friends. If you set your game password, 
+                            and somebody else sets their password to match it, you can both play on the same game session!
+                            The session used will be whoever connects to the password first.
+                        </p>
+                    </div>
                 </div>
                 <div class="row col-sm-12 cookieLawContainer" id="cookieLawWarning">
                     <div class="col-sm-8 col-md-9 cookieMessage">
                         This site uses cookies to store data on your browser. <a href="https://cookiesandyou.com/" target="_blank">Learn more.</a>
                     </div>
                     <div class="offset-sm-1 cookieDismiss">
-                        <div class="cookieDismissButton" id="cookieDismiss">Got it!</button>
+                        <div class="cookieDismissButton" id="cookieDismiss">Got it!</div>
                     </div>
                 </div>
             </div>

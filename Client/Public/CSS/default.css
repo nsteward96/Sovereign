@@ -21,14 +21,30 @@ body, html {
     padding: 0px;   
 }
 
+.unselectable {
+    user-drag: none;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-drag: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+}
+
 /* Main Navbar and inner stylings */
 .page-navbar-container {
     height: 30px;
+    background-color: #DDDDDD;
 }
 
 .page-navbar {
     height: 100%;
-    background-color: #353550;
+}
+
+.text-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-decoration: underline;
 }
 
 /***** All Main Game Custom Stylings *****/
@@ -287,7 +303,7 @@ body, html {
 }
 
 /* Enter Username Banner Stylings */
-.enter-username-container {
+.overlay-container {
     text-align: center;
     vertical-align: center;
     position: absolute;
@@ -307,10 +323,6 @@ body, html {
     min-width: 250px;
     padding: 0 25%;
     top: 30%;
-}
-
-.enter-username-field {
-    
 }
 
 .enter-username-submit {
@@ -351,6 +363,23 @@ body, html {
     padding: 0px 2px;
     text-decoration: underline;
     cursor: pointer;
+}
+
+/* Set Game Password container stylings */
+.set-game-password-container {
+    height: 40%;
+    width: 50%;
+    min-width: 250px;
+    padding: 0 12.5%;
+    top: 30%;
+    left: 25%;
+    color: white;
+    font-family: 'Fondamento', cursive;
+    font-size: 20px;
+}
+
+.set-game-password-field {
+    width: 60%;
 }
 
 /***** End All Main Game Custom Stylings *****/
