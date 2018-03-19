@@ -22,6 +22,7 @@ body, html {
 }
 
 .unselectable {
+    cursor: default;
     user-drag: none;
     user-select: none;
     -moz-user-select: none;
@@ -281,6 +282,11 @@ body, html {
     word-wrap: break-word;
 }
 
+.chatbox-text-display > p {
+    line-height: 1.15em;
+    margin-bottom: .5rem;
+}
+
 .chatbox-text-area {
     width: 100%;
     height: 22px;
@@ -305,7 +311,6 @@ body, html {
 /* Enter Username Banner Stylings */
 .overlay-container {
     text-align: center;
-    vertical-align: center;
     position: absolute;
     display: none;
     height: 100%;
@@ -380,6 +385,44 @@ body, html {
 
 .set-game-password-field {
     width: 60%;
+}
+
+/* Room Occupants Display stylings */
+.view-room-occupants-container {
+    width: 40%;
+    min-width: 250px;
+    padding: 0 12.5%;
+    top: 30%;
+    left: 30%;
+}
+
+.view-room-occupants {
+    color: white;
+    height: 100%;
+    width: 100%;
+}
+
+.view-room-occupants-occupants {
+    margin-bottom: 10px;
+}
+
+.view-room-occupants-occupants > div > p {
+    margin-bottom: 0;
+}
+
+.host-user {
+    color: #FFC828;
+}
+
+.view-room-occupants-room-name {
+    font-size: 24px;
+}
+
+.view-room-occupants-close {
+    cursor: pointer;
+    position: relative;
+    font-family: 'Fondamento', cursive;
+    font-size: 20px;
 }
 
 /***** End All Main Game Custom Stylings *****/

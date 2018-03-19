@@ -67,7 +67,7 @@ $(document).ready(function() {
     });
     
     var setGamePasswordSubmitButton = document.getElementById('setGamePasswordSubmit');
-    var setGamePasswordField = document.getElementsByClassName('set-game-password-field')[0];
+    var setGamePasswordField = document.getElementById('setGamePasswordField');
     setGamePasswordSubmitButton.addEventListener('click', function() {
         if (game_password != setGamePasswordField.value) {
             game_password = setGamePasswordField.value;
@@ -87,6 +87,19 @@ $(document).ready(function() {
         } else {
             console.log('You don\'t have a password set!');   
         }
+    });
+    
+    var viewRoomOccupantsButton = document.getElementById('viewRoomOccupants');
+    viewRoomOccupantsButton.addEventListener('click', function() {
+        getUsersInCurrentRoom();
+        window.setTimeout(function() {
+            revealOverlay('viewRoomOccupantsContainer');
+        }, 50);
+    });
+    
+    var viewRoomOccupantsCloseButton = document.getElementById('viewRoomOccupantsClose');
+    viewRoomOccupantsCloseButton.addEventListener('click', function() {
+        hideOverlay();
     });
     
     // Socket event listeners
@@ -131,6 +144,33 @@ $(document).ready(function() {
     socket.on('kick_from_room', function(data) {
         leaveGameSession();
     });
+    socket.on('list_of_players', function(data) {
+        var playerListContainer = document.getElementById('viewRoomOccupantsOccupants');
+        // Empty list of players
+        while (playerListContainer.firstChild) {
+            playerListContainer.removeChild(playerListContainer.firstChild);
+        }
+        
+        var playerListStartString = document.createElement('p');
+        playerListStartString.innerText = 'Players in this room:';
+        playerListContainer.appendChild(playerListStartString);
+        // Generate new list of players
+        for (var i = 0; i < data['username_list'].length; i++) {
+            var playerContainer = document.createElement('div');
+            var playerName = document.createElement('p');
+            playerName.innerText = data['username_list'][i];
+            if (playerName.innerText === data['host_username']) {
+                $(playerName).addClass('host-user');
+                playerName.title = 'This user is currently the host';
+            }
+            playerContainer.appendChild(playerName);
+            playerListContainer.appendChild(playerContainer);
+        }
+    });
+    socket.on('server_return_current_room_username_list', function(data) {
+        var viewRoomOccupantsRoomName = document.getElementById('viewRoomOccupantsRoomName');
+        viewRoomOccupantsRoomName.innerText = 'Current Room: ' + data;
+    });
     
     autosaveTimer();
     townspeopleArrivalTimer();
@@ -166,6 +206,7 @@ function initModels() {
     }
     if (storedUsername !== null) {
         username = storedUsername;
+        socket.emit('set_username', { new_username: storedUsername });
     } else {
         revealOverlay('enterUsername');
     }
@@ -464,7 +505,7 @@ function setUsername() {
     var new_username = new_name + ' ' + new_title; 
     
     if (verifyUsername(new_name)) {
-        socket.emit('namechange', { new_username: new_username, previous_username: username });
+        socket.emit('set_username', { new_username: new_username, previous_username: username });
         username = new_username;
         
         var overlayContainer = document.getElementById('overlayContainer');
@@ -540,12 +581,15 @@ function hideOverlay() {
 }
 
 function joinGameSession(game_password) {
-    var data = { room: game_password, player_name: username };
-    socket.emit('namespace_change', data);
+    showServerButtons();
+    socket.emit('namespace_change', { room: game_password, player_name: username });
+    window.setTimeout(function() {
+        socket.emit('update_current_room_username_list');
+    }, 250);
 }
 
 function leaveGameSession() {
-    socket.emit('reset_namespace');
+    socket.emit('reset_namespace', username);
     if (is_host && is_in_a_server) {
         localStorage.setItem('modelResource', JSON.stringify(modelResource));
         localStorage.setItem('modelResourceRates', JSON.stringify(modelResourceRates));
@@ -558,6 +602,7 @@ function leaveGameSession() {
         is_in_a_server = false;
         game_password = '';
         initModels();
+        hideServerButtons();
     }, 250);
 }
 
@@ -665,4 +710,19 @@ function updateWithDataFromServer(data) {
             buyButton: document.getElementById('buildingSmallHouseBuyButton'),
             sellButton: document.getElementById('buildingSmallHouseSellButton')
         };
+}
+
+// Shows buttons related to server actions on the page nav.
+function showServerButtons() {
+    $(document.getElementById('serverButtonsContainer')).fadeIn(350);
+}
+
+// Hides buttons related to server actions on the page nav.
+function hideServerButtons() {
+    $(document.getElementById('serverButtonsContainer')).fadeOut();
+}
+
+// Shows user a list of the users in the current room. Excludes themself.
+function getUsersInCurrentRoom() {
+    socket.emit('retrieve_list_of_players');
 }
