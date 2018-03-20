@@ -11,6 +11,9 @@ var is_host = true;
 var is_in_a_server = false;
 
 $(document).ready(function() {
+    // Setup socket - connection to server (Do not move this from the document ready)
+    socket = io('https://sovereign-nathansteward.c9users.io');
+
     initModels();
     populateTitleList();
     
@@ -27,8 +30,6 @@ $(document).ready(function() {
 
 // Initializes models with content.
 function initModels() {
-    // Setup socket - connection to server
-    socket = io('https://sovereign-nathansteward.c9users.io');
     // Init all resource values to 0.
     modelResource['resource'] = 0;
     modelResource['townspeopleAvailable'] = 0;
