@@ -531,9 +531,14 @@ function setupServerEmitListeners() {
         createChatMessage(message);
     });
     
-    socket.on('new_player_joined_room', function(player_name) {
-        var chat_message = player_name + ' has joined the room!';
-        createChatMessage(chat_message)
+    socket.on('new_player_joined_game', function(player_name) {
+        var player_joined_message = player_name + ' has joined the game!';
+        createChatMessage(player_joined_message)
+    });
+    
+    socket.on('player_left_game', function(username) {
+        var player_left_message = username + ' has left the game!'; 
+        createChatMessage(player_left_message);
     });
     
     socket.on('server_output_to_flavor_text_area', function(message) {
