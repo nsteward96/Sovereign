@@ -39,7 +39,7 @@ io.on('connection', function(socket){
     socket.on('namespace_change', (data) => {
         resetNamespace(socket, current_room, data.player_name);
         socket.join(data.room, function () {
-            socket.to(data.room).emit('new_player_joined_room', data.player_name);
+            socket.to(data.room).emit('new_player_joined_game', data.player_name);
             current_room = data.room;
         });
         
@@ -125,6 +125,7 @@ function resetNamespace(socket, current_room) {
         console.log('resetting all');
         socket.to(current_room).broadcast.emit('kick_from_room');
     }
+    socket.to(current_room).broadcast.emit('player_left_game', socket.username);
     socket.leave(current_room);
     // Find index of username in username list array for current room, and remove it
     if (player_list[current_room]) {
