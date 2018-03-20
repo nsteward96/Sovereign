@@ -98,87 +98,20 @@ function initModels() {
             buyButton: document.getElementById('buildingSmallHouseBuyButton'),
             sellButton: document.getElementById('buildingSmallHouseSellButton')
         };
-    // Init the flavor text area view.
-    var flavorTextArea = document.getElementById('flavorTextArea');
 }
 
-// Changes the currently-displayed view.
-function updateSelectedView(divBeingSelected) {
-    // Update which button is currently selected.
-    var currentlySelectedDiv = document.getElementsByClassName('selected')[0];
-    if (currentlySelectedDiv !== divBeingSelected) {
-        document.getElementsByClassName('selected')[0].classList.remove('selected');
-        divBeingSelected.classList.add('selected');
+function revealOverlay(id) {
+    var overlayContainer = document.getElementById('overlayContainer');
+    var overlayContainerChildren = overlayContainer.children;
+    for (var i = 0; i < overlayContainerChildren.length; i++) {
+        overlayContainerChildren[i].classList.remove('selected');
+        overlayContainerChildren[i].style = 'display: none;';
     }
-    
-    /* We iterate over the array in this way since we cannot refer
-        to the individual indexes by number (it's a dictionary of sorts). */
-    for (let viewObject in modelViews) {
-        if (modelViews[viewObject].navButton === divBeingSelected) {
-            modelViews[viewObject].view.style = 'display: block;';
-        } else {
-            modelViews[viewObject].view.style = 'display: none;';
-        }
-    }
+    var selectedDiv = document.getElementById(id);
+    selectedDiv.classList.add('selected');
+    selectedDiv.style = 'display: block;';
+    overlayContainer.style = 'display: block;';
 }
-
-// User assigns a job to an available townsperson.
-function allocateWorker(addWorkerButton) {
-    if (modelResource['townspeopleAvailable'] > 0) {
-        if (addWorkerButton === 'jobResourceCollector') {
-            modelResource['townspeopleResourceCollector']++;
-        }
-        modelResource['townspeopleAvailable']--;
-        updateResourceVelocity();
-    } else {
-        // Flashing red effect to let user know they can't add more workers.
-        var totalWorkersDisplay = document.getElementById('workerStatsDisplayTotalWorkers');
-        totalWorkersDisplay.style = 'color: red;';
-        window.setTimeout(function() {
-            totalWorkersDisplay.style = 'color: #212529;';
-        }, 350);
-    }
-}
-
-// User takes away a job assigned to an available townsperson (creating an available townsperson).
-function deallocateWorker(removeWorkerButton) {
-    if (removeWorkerButton === 'jobResourceCollector' && modelResource['townspeopleResourceCollector'] > 0) {
-        modelResource['townspeopleResourceCollector']--;
-        modelResource['townspeopleAvailable']++;
-        updateResourceVelocity();
-    } else {
-        // Flashing red effect to let user know they can't remove nonexistant workers.
-        var totalWorkersDisplay = document.getElementById('workerStatsDisplayTotalWorkers');
-        totalWorkersDisplay.style = 'color: red;';
-        window.setTimeout(function() {
-            totalWorkersDisplay.style = 'color: #212529;';
-        }, 350);
-    }
-}
-
-// User buys a building
-function buyBuilding(buyBuildingButton) {
-    for (let building in modelBuildings) {
-        if (modelBuildings[building].id === buyBuildingButton && modelBuildings[building].price <= modelResource['resource']) {
-            modelResource['resource'] -= modelBuildings[building].price;
-            modelResource['smallHousesOwned']++;
-            modelBuildings[building].price = 
-                determineCurrentPriceBuilding(modelBuildings[building].basePrice, modelResource['smallHousesOwned']);
-            updateMaxTownspeople();
-        }
-    }
-}
-
-// User sells a building - currently put aside, complications with townspeople
-
-// function sellBuilding(sellBuildingButton) {
-//     var buildingId = sellBuildingButton.parentElement.id;
-//     if (buildingId === 'buildingSmallHouse' && modelResource['smallHousesOwned'] > 0) {
-//         modelResource['resource'] += ((1/2)*modelBuildings['smallHouse'].price*.87);
-//         modelResource['smallHousesOwned']--;
-//         modelBuildings['smallHouse'].price = determineCurrentPriceBuilding(modelBuildings['smallHouse'], modelResource['smallHousesOwned']);
-//     }
-// }
 
 // Returns the current price of a building.
 function determineCurrentPriceBuilding(basePrice, numOwned) {
@@ -187,188 +120,6 @@ function determineCurrentPriceBuilding(basePrice, numOwned) {
         finalPrice *= modelResourceRates['incrementalGrowthRateBuildings'];
     }
     return finalPrice;
-}
-
-// Functionality: Iterates the generic 'resource' resource by 1.
-//                  Remove later. Merely to test functionality.
-function generateResource() {
-    modelResource['resource']++;
-}
-
-// Initializes the autosave timer to ensure user data persistence.
-//                  User data is autosaved every 15 seconds.
-function autosaveTimer() {
-    if (is_host) {
-        localStorage.setItem('modelResource', JSON.stringify(modelResource));
-        localStorage.setItem('modelResourceRates', JSON.stringify(modelResourceRates));
-    }
-    window.setTimeout(autosaveTimer, 15000);
-}
-
-// Initializes a timer that will result in new townspeople arriving in town.
-function townspeopleArrivalTimer() {
-    if (is_host && is_in_a_server) {
-        if (modelResource['townspeopleAlive'] < modelResource['townspeopleMax']) {
-            var message = '';
-            var incomingTownspeople = Math.round(Math.random() * 3);
-            if (modelResource['townspeopleAlive'] + incomingTownspeople > modelResource['townspeopleMax']) {
-                incomingTownspeople = modelResource['townspeopleMax'] - modelResource['townspeopleAlive'];
-            }
-            
-            var randomChanceMessage = Math.random();
-            if (incomingTownspeople === 1) {
-                if (Math.ceil(randomChanceMessage*4) === 1) {
-                    message = 'A young lad, barely a man, approaches. He asks if he can work ' + 
-                        'in exchange for a place to call "home".';
-                } else if (Math.ceil(randomChanceMessage*4) === 2) {
-                    message = 'An older gentleman saunters into view. He smiles at the sight ' + 
-                        'of friendly faces. He offers his services in exchange for shelter.';
-                } else if (Math.ceil(randomChanceMessage*4) === 3) {
-                    message = 'A young woman strides towards the camp. She\'s been exploring the ' + 
-                        'area and now seeks respite.';
-                } else if (Math.ceil(randomChanceMessage*4) === 4) {
-                    message = 'An older woman, seasoned by hard times, shuffles towards you. ' +
-                        'She offers her wisdom and experience in exchange for safety.';
-                }
-            } else if (incomingTownspeople === 2) {
-                if (Math.ceil(randomChanceMessage*3) === 1) {
-                    message = 'A weathered gentleman and his son venture into your camp. ' + 
-                    'He desires shelter for himself and his boy, offering honest work.';
-                } else if (Math.ceil(randomChanceMessage*3) === 2) {
-                    message = 'A woman and her daughter approach. They seek respite from ' + 
-                        'the elements, and know some invaluable trade skills.';
-                } else if (Math.ceil(randomChanceMessage*3) === 3) {
-                    message = 'A woman and her son approach. The woman is tired, and requires ' + 
-                    'some medical attention. With some time, they prove to be valuable allies.';
-                }
-            } else if (incomingTownspeople === 3) {
-                if (Math.ceil(randomChanceMessage*3) === 1) {
-                    message = 'A man, woman, and their daughter race into town. ' + 
-                        'They discovered some raging wildlife and ran for the last mile or so. ' + 
-                        'After they catch their breath, you point them to an unfilled house and they ' + 
-                        'offer their abilities with gratitude.';
-                } else if (Math.ceil(randomChanceMessage*3) === 2) {
-                    message = 'Three women come into town without a word. ' + 
-                        'Despite your prying, they do not say a word. But they do take up ' + 
-                        'residence in one of your open homes, and willingly accept work.';
-                } else if (Math.ceil(randomChanceMessage*3) === 3) {
-                    message = 'Three men stride into town, seeking work. ' + 
-                        '\'If anything needs lifting, just call us!\' Good labor is always ' + 
-                        'welcome to come by.';
-                }
-            }
-            
-            if (message !== '') {
-                outputToFlavorTextArea(message);
-            }
-            modelResource['townspeopleAlive'] += incomingTownspeople;
-            modelResource['townspeopleAvailable'] += incomingTownspeople;
-        }
-    }
-    window.setTimeout(townspeopleArrivalTimer, 12500);
-}
-
-// Updates the rate at which resources are added to your total.
-function updateResourceVelocity() {
-    modelResourceVelocity['resourceCollector'] = 
-        modelResource['townspeopleResourceCollector'] * modelResourceRates['resourceCollector'];
-}
-
-// Keeps track of how many townspeople you can have max.
-function updateMaxTownspeople() {
-    modelResource['townspeopleMax'] = modelResource['smallHousesOwned'] * modelResourceRates['smallHouse'];
-}
-
-// Functionality: Update page-displayed resource values on an interval.
-function updateResourceValues() {
-    calculateResourceValuePerTick();
-    var resourceName = document.getElementById('resource-name');
-    if (modelResourceVelocity['resourceCollector'] > 0) {
-        resourceName.innerText = 'Resource (+' + formatNumberToSignificantValue(modelResourceVelocity['resourceCollector']) + ')';
-    } else if (modelResourceVelocity['resourceCollector'] < 0) {
-        resourceName.innerText = 
-            'Resource (-' + formatNumberToSignificantValue(modelResourceVelocity['resourceCollector']) + ')';
-    } else {
-        resourceName.innerText = 'Resource';
-    }
-    document.getElementById('resource-value').innerText = formatNumberToSignificantValue(modelResource['resource']);
-    document.getElementById('maxNumTownspeople').innerText = modelResource['townspeopleMax'];
-    document.getElementById('numWorkers').innerText = modelResource['townspeopleAvailable'] + '/' 
-        + modelResource['townspeopleAlive'];
-    document.getElementById('numWorkersResourceCollector').innerText = modelResource['townspeopleResourceCollector'];
-    document.getElementById('numOwnedSmallHouses').innerText = modelResource['smallHousesOwned'];
-    
-    if (is_host && is_in_a_server) {
-        var data = { resource_data: modelResource, resource_rates_data: modelResourceRates };
-        socket.emit('data_update', data);
-    }
-    
-    window.setTimeout(updateResourceValues, 100);
-}
-
-// Update the actual values of resources.
-function calculateResourceValuePerTick() {
-    //Ticks are 10 times a second, or every .1s, thus the magic number .1.
-    modelResource['resource'] += modelResourceVelocity['resourceCollector']*.1;
-}
-
-// Output text to the flavor text area.
-function outputToFlavorTextArea(text) {
-    if (is_host && is_in_a_server) {
-        socket.emit('host_broadcast_output_to_flavor_text_area', text);
-    }
-    var message = document.createElement('div');
-    message.classList = 'flavor-text-area-message';
-    var messageContent = document.createElement('p');
-    messageContent.innerText = text;
-    var messageBorderBottom = document.createElement('div');
-    messageBorderBottom.classList = 'flavor-text-area-message-border-bottom';
-    message.appendChild(messageContent);
-    message.appendChild(messageBorderBottom);
-    $(flavorTextArea).prepend(message);
-    var messageJustAppended = flavorTextArea.childNodes[0];
-    $(messageJustAppended).fadeIn(350);
-}
-
-// Remove messages from flavor text area.
-function emptyFlavorTextArea() {
-    $(document.getElementById('flavorTextArea').children).remove();
-}
-
-// Print some flavor text to the console when the user starts a new session.
-function printIntroductoryMessage() {
-    if (modelResource['smallHousesOwned'] === 0) {
-        outputToFlavorTextArea('You awaken in a grassy field. Foggy and forgetful of your origins, you wonder what to do. ' + 
-            'Shelter is unseen in a couple mile radius. You should probably collect some resources and fashion yourself ' + 
-            'a form of safety, such as a small hut.');
-    } else if (modelResource['smallHousesOwned'] > 0 && modelResource['smallHousesOwned'] < 15) {
-        outputToFlavorTextArea('You are surrounded by a small community. Some describe the land as one previously inhabited ' + 
-            'by a prosperous kingdom. However, there are no consistent answers of how it fell.');
-    }
-}
-
-// Changes the user's username based on their name entry and selected title.
-function setUsername() {
-    var new_name = document.getElementById('enterUsernameField').value;
-    var new_title = $('#usernameTitles option:selected')[0].value;
-    var new_username = new_name + ' ' + new_title; 
-    
-    if (verifyUsername(new_name)) {
-        socket.emit('set_username', { new_username: new_username, previous_username: username });
-        username = new_username;
-        
-        var overlayContainer = document.getElementById('overlayContainer');
-        overlayContainer.style = 'display: none;';
-        localStorage.setItem('username', JSON.stringify(username));
-    }
-}
-
-// Verifies that a username follows some basic rules. Returns false if an invalid username is submitted.
-function verifyUsername(name) {
-    if (name.length == 0 || name.length > 32) {
-        return false;
-    }
-    return true;
 }
 
 // Sets up the list of titles that a user can select from in the name-setup process.
@@ -412,47 +163,35 @@ function populateTitleList() {
     }
 }
 
-function revealOverlay(id) {
-    var overlayContainer = document.getElementById('overlayContainer');
-    var overlayContainerChildren = overlayContainer.children;
-    for (var i = 0; i < overlayContainerChildren.length; i++) {
-        overlayContainerChildren[i].classList.remove('selected');
-        overlayContainerChildren[i].style = 'display: none;';
+// Print some flavor text to the console when the user starts a new session.
+function printIntroductoryMessage() {
+    if (modelResource['smallHousesOwned'] === 0) {
+        outputToFlavorTextArea('You awaken in a grassy field. Foggy and forgetful of your origins, you wonder what to do. ' + 
+            'Shelter is unseen in a couple mile radius. You should probably collect some resources and fashion yourself ' + 
+            'a form of safety, such as a small hut.');
+    } else if (modelResource['smallHousesOwned'] > 0 && modelResource['smallHousesOwned'] < 15) {
+        outputToFlavorTextArea('You are surrounded by a small community. Some describe the land as one previously inhabited ' + 
+            'by a prosperous kingdom. However, there are no consistent answers of how it fell.');
     }
-    var selectedDiv = document.getElementById(id);
-    selectedDiv.classList.add('selected');
-    selectedDiv.style = 'display: block;';
-    overlayContainer.style = 'display: block;';
 }
 
-function hideOverlay() {
-    document.getElementById('overlayContainer').style = 'display; none;';
-}
-
-function joinGameSession(game_password) {
-    showServerButtons();
-    socket.emit('namespace_change', { room: game_password, player_name: username });
-    window.setTimeout(function() {
-        socket.emit('update_current_room_username_list');
-    }, 250);
-}
-
-function leaveGameSession() {
-    socket.emit('reset_namespace', username);
+// Output text to the flavor text area.
+function outputToFlavorTextArea(text) {
+    var flavorTextArea = document.getElementById('flavorTextArea');
     if (is_host && is_in_a_server) {
-        localStorage.setItem('modelResource', JSON.stringify(modelResource));
-        localStorage.setItem('modelResourceRates', JSON.stringify(modelResourceRates));
+        socket.emit('host_broadcast_output_to_flavor_text_area', text);
     }
-    window.setTimeout(function() {
-        if (!(is_host)) {
-            emptyFlavorTextArea();
-        }
-        is_host = true;
-        is_in_a_server = false;
-        game_password = '';
-        initModels();
-        hideServerButtons();
-    }, 250);
+    var message = document.createElement('div');
+    message.classList = 'flavor-text-area-message';
+    var messageContent = document.createElement('p');
+    messageContent.innerText = text;
+    var messageBorderBottom = document.createElement('div');
+    messageBorderBottom.classList = 'flavor-text-area-message-border-bottom';
+    message.appendChild(messageContent);
+    message.appendChild(messageBorderBottom);
+    $(flavorTextArea).prepend(message);
+    var messageJustAppended = flavorTextArea.childNodes[0];
+    $(messageJustAppended).fadeIn(350);
 }
 
 // Event listeners that need to be dynamic - they operate differently based on
@@ -547,7 +286,129 @@ function setupDynamicEventListeners() {
             console.log('You don\'t have a password set!');   
         }
     });
+}
 
+// User assigns a job to an available townsperson.
+function allocateWorker(addWorkerButton) {
+    if (modelResource['townspeopleAvailable'] > 0) {
+        if (addWorkerButton === 'jobResourceCollector') {
+            modelResource['townspeopleResourceCollector']++;
+        }
+        modelResource['townspeopleAvailable']--;
+        updateResourceVelocity();
+    } else {
+        // Flashing red effect to let user know they can't add more workers.
+        var totalWorkersDisplay = document.getElementById('workerStatsDisplayTotalWorkers');
+        totalWorkersDisplay.style = 'color: red;';
+        window.setTimeout(function() {
+            totalWorkersDisplay.style = 'color: #212529;';
+        }, 350);
+    }
+}
+
+// Updates the rate at which resources are added to your total.
+function updateResourceVelocity() {
+    modelResourceVelocity['resourceCollector'] = 
+        modelResource['townspeopleResourceCollector'] * modelResourceRates['resourceCollector'];
+}
+
+// User takes away a job assigned to an available townsperson (creating an available townsperson).
+function deallocateWorker(removeWorkerButton) {
+    if (removeWorkerButton === 'jobResourceCollector' && modelResource['townspeopleResourceCollector'] > 0) {
+        modelResource['townspeopleResourceCollector']--;
+        modelResource['townspeopleAvailable']++;
+        updateResourceVelocity();
+    } else {
+        // Flashing red effect to let user know they can't remove nonexistant workers.
+        var totalWorkersDisplay = document.getElementById('workerStatsDisplayTotalWorkers');
+        totalWorkersDisplay.style = 'color: red;';
+        window.setTimeout(function() {
+            totalWorkersDisplay.style = 'color: #212529;';
+        }, 350);
+    }
+}
+
+// User buys a building
+function buyBuilding(buyBuildingButton) {
+    for (let building in modelBuildings) {
+        if (modelBuildings[building].id === buyBuildingButton && modelBuildings[building].price <= modelResource['resource']) {
+            modelResource['resource'] -= modelBuildings[building].price;
+            modelResource['smallHousesOwned']++;
+            modelBuildings[building].price = 
+                determineCurrentPriceBuilding(modelBuildings[building].basePrice, modelResource['smallHousesOwned']);
+            updateMaxTownspeople();
+        }
+    }
+}
+
+// Keeps track of how many townspeople you can have max.
+function updateMaxTownspeople() {
+    modelResource['townspeopleMax'] = modelResource['smallHousesOwned'] * modelResourceRates['smallHouse'];
+}
+
+// Functionality: Iterates the generic 'resource' resource by 1.
+//                  Remove later. Merely to test functionality.
+function generateResource() {
+    modelResource['resource']++;
+}
+
+// Creates a message in the chat box.
+function createChatMessage(message) {
+    var chatboxTextDisplay = document.getElementById('chatboxTextDisplay');
+    var chatMessage = document.createElement('p');
+    if (message.username && message.message) {
+        chatMessage.innerText = message.username + ': ' + message.message;
+    } else {
+        chatMessage.innerText = message;
+    }
+    chatboxTextDisplay.appendChild(chatMessage);
+}
+
+// Joins a game room after the user has entered in a password and submitted it.
+function joinGameSession(game_password) {
+    showServerButtons();
+    socket.emit('namespace_change', { room: game_password, player_name: username });
+    window.setTimeout(function() {
+        socket.emit('update_current_room_name');
+    }, 250);
+}
+
+// Shows buttons related to server actions on the page nav.
+function showServerButtons() {
+    $(document.getElementById('serverButtonsContainer')).fadeIn(350);
+}
+
+function hideOverlay() {
+    document.getElementById('overlayContainer').style = 'display; none;';
+}
+
+// Leaves a game room after the user disconnects.
+function leaveGameSession() {
+    socket.emit('reset_namespace', username);
+    if (is_host && is_in_a_server) {
+        localStorage.setItem('modelResource', JSON.stringify(modelResource));
+        localStorage.setItem('modelResourceRates', JSON.stringify(modelResourceRates));
+    }
+    window.setTimeout(function() {
+        if (!(is_host)) {
+            emptyFlavorTextArea();
+        }
+        is_host = true;
+        is_in_a_server = false;
+        game_password = '';
+        initModels();
+        hideServerButtons();
+    }, 250);
+}
+
+// Remove messages from flavor text area.
+function emptyFlavorTextArea() {
+    $(document.getElementById('flavorTextArea').children).remove();
+}
+
+// Hides buttons related to server actions on the page nav.
+function hideServerButtons() {
+    $(document.getElementById('serverButtonsContainer')).fadeOut();
 }
 
 // Event listeners that are static - they operate independently of the user's
@@ -561,7 +422,9 @@ function setupStaticEventListeners() {
             document.getElementById('manageJobsNavButton')
         ];
     for (let i = 0; i < gameNavButtonArray.length; i++) {
-        gameNavButtonArray[i].addEventListener('click', function() {updateSelectedView(gameNavButtonArray[i]);});
+        gameNavButtonArray[i].addEventListener('click', function() {
+            updateSelectedView(gameNavButtonArray[i]);
+        });
     }
     
     var setUsernameButtonOriginal = document.getElementById('enterUsernameSubmit');
@@ -610,16 +473,67 @@ function setupStaticEventListeners() {
     });
 }
 
+// Changes the currently-displayed view.
+function updateSelectedView(divBeingSelected) {
+    // Update which button is currently selected.
+    var currentlySelectedDiv = document.getElementsByClassName('selected')[0];
+    if (currentlySelectedDiv !== divBeingSelected) {
+        document.getElementsByClassName('selected')[0].classList.remove('selected');
+        divBeingSelected.classList.add('selected');
+    }
+    
+    /* We iterate over the array in this way since we cannot refer
+        to the individual indexes by number (it's a dictionary of sorts). */
+    for (let viewObject in modelViews) {
+        if (modelViews[viewObject].navButton === divBeingSelected) {
+            modelViews[viewObject].view.style = 'display: block;';
+        } else {
+            modelViews[viewObject].view.style = 'display: none;';
+        }
+    }
+}
+
+// Changes the user's username based on their name entry and selected title.
+function setUsername() {
+    var new_name = document.getElementById('enterUsernameField').value;
+    var new_title = $('#usernameTitles option:selected')[0].value;
+    var new_username = new_name + ' ' + new_title; 
+    
+    if (verifyUsername(new_name)) {
+        socket.emit('set_username', { new_username: new_username, previous_username: username });
+        username = new_username;
+        
+        var overlayContainer = document.getElementById('overlayContainer');
+        overlayContainer.style = 'display: none;';
+        localStorage.setItem('username', JSON.stringify(username));
+    } else {
+        console.log('That username doesn\'t follow the rules! Try another.');
+    }
+}
+
+// Verifies that a username follows some basic rules. Returns false if an invalid username is submitted.
+function verifyUsername(name) {
+    if (name.length == 0 || name.length > 32) {
+        return false;
+    }
+    return true;
+}
+
+// Shows user a list of the users in the current room.
+function getUsersInCurrentRoom() {
+    socket.emit('retrieve_list_of_players');
+}
+
+// Sets up event listeners on the socket that trigger when receiving
+// certain messages from the server.
 function setupServerEmitListeners() {
     socket.on('chat_message_from_server', function(message) {
         createChatMessage(message);
     });
     
     socket.on('new_player_joined_room', function(player_name) {
-        var chatboxTextDisplay = document.getElementById('chatboxTextDisplay');
-        var chatMessage = document.createElement('p');
-        chatMessage.innerText = player_name + ' has joined the room!';
-        chatboxTextDisplay.appendChild(chatMessage);
+        var chat_message = player_name + ' has joined the room!';
+        createChatMessage(chat_message)
     });
     
     socket.on('server_output_to_flavor_text_area', function(message) {
@@ -680,11 +594,10 @@ function setupServerEmitListeners() {
         }
     });
     
-    socket.on('server_return_current_room_username_list', function(data) {
+    socket.on('server_return_current_room_name', function(data) {
         var viewRoomOccupantsRoomName = document.getElementById('viewRoomOccupantsRoomName');
         viewRoomOccupantsRoomName.innerText = 'Current Room: ' + data;
     });
-
 }
 
 // Updates the current game interface with data from another player's hosted game.
@@ -741,28 +654,106 @@ function updateWithDataFromServer(data) {
         };
 }
 
-// Shows buttons related to server actions on the page nav.
-function showServerButtons() {
-    $(document.getElementById('serverButtonsContainer')).fadeIn(350);
-}
-
-// Hides buttons related to server actions on the page nav.
-function hideServerButtons() {
-    $(document.getElementById('serverButtonsContainer')).fadeOut();
-}
-
-// Shows user a list of the users in the current room. Excludes themself.
-function getUsersInCurrentRoom() {
-    socket.emit('retrieve_list_of_players');
-}
-
-function createChatMessage(message) {
-    var chatboxTextDisplay = document.getElementById('chatboxTextDisplay');
-    var chatMessage = document.createElement('p');
-    if (message.username && message.message) {
-        chatMessage.innerText = message.username + ': ' + message.message;
-    } else {
-        chatMessage.innerText = message;
+// Initializes the autosave timer to ensure user data persistence.
+//                  User data is autosaved every 15 seconds.
+function autosaveTimer() {
+    if (is_host) {
+        localStorage.setItem('modelResource', JSON.stringify(modelResource));
+        localStorage.setItem('modelResourceRates', JSON.stringify(modelResourceRates));
     }
-    chatboxTextDisplay.appendChild(chatMessage);
+    window.setTimeout(autosaveTimer, 15000);
+}
+
+// Initializes a timer that will result in new townspeople arriving in town.
+function townspeopleArrivalTimer() {
+    if (is_host && modelResource['townspeopleAlive'] < modelResource['townspeopleMax']) {
+        var message = '';
+        var incomingTownspeople = Math.round(Math.random() * 3);
+        if (modelResource['townspeopleAlive'] + incomingTownspeople > modelResource['townspeopleMax']) {
+            incomingTownspeople = modelResource['townspeopleMax'] - modelResource['townspeopleAlive'];
+        }
+        
+        var randomChanceMessage = Math.random();
+        if (incomingTownspeople === 1) {
+            if (Math.ceil(randomChanceMessage*4) === 1) {
+                message = 'A young lad, barely a man, approaches. He asks if he can work ' + 
+                    'in exchange for a place to call "home".';
+            } else if (Math.ceil(randomChanceMessage*4) === 2) {
+                message = 'An older gentleman saunters into view. He smiles at the sight ' + 
+                    'of friendly faces. He offers his services in exchange for shelter.';
+            } else if (Math.ceil(randomChanceMessage*4) === 3) {
+                message = 'A young woman strides towards the camp. She\'s been exploring the ' + 
+                    'area and now seeks respite.';
+            } else if (Math.ceil(randomChanceMessage*4) === 4) {
+                message = 'An older woman, seasoned by hard times, shuffles towards you. ' +
+                    'She offers her wisdom and experience in exchange for safety.';
+            }
+        } else if (incomingTownspeople === 2) {
+            if (Math.ceil(randomChanceMessage*3) === 1) {
+                message = 'A weathered gentleman and his son venture into your camp. ' + 
+                'He desires shelter for himself and his boy, offering honest work.';
+            } else if (Math.ceil(randomChanceMessage*3) === 2) {
+                message = 'A woman and her daughter approach. They seek respite from ' + 
+                    'the elements, and know some invaluable trade skills.';
+            } else if (Math.ceil(randomChanceMessage*3) === 3) {
+                message = 'A woman and her son approach. The woman is tired, and requires ' + 
+                'some medical attention. With some time, they prove to be valuable allies.';
+            }
+        } else if (incomingTownspeople === 3) {
+            if (Math.ceil(randomChanceMessage*3) === 1) {
+                message = 'A man, woman, and their daughter race into town. ' + 
+                    'They discovered some raging wildlife and ran for the last mile or so. ' + 
+                    'After they catch their breath, you point them to an unfilled house and they ' + 
+                    'offer their abilities with gratitude.';
+            } else if (Math.ceil(randomChanceMessage*3) === 2) {
+                message = 'Three women come into town without a word. ' + 
+                    'Despite your prying, they do not say a word. But they do take up ' + 
+                    'residence in one of your open homes, and willingly accept work.';
+            } else if (Math.ceil(randomChanceMessage*3) === 3) {
+                message = 'Three men stride into town, seeking work. ' + 
+                    '\'If anything needs lifting, just call us!\' Good labor is always ' + 
+                    'welcome to come by.';
+            }
+        }
+        
+        if (message !== '') {
+            outputToFlavorTextArea(message);
+        }
+        modelResource['townspeopleAlive'] += incomingTownspeople;
+        modelResource['townspeopleAvailable'] += incomingTownspeople;
+    }
+    window.setTimeout(townspeopleArrivalTimer, 12500);
+}
+
+// Functionality: Update page-displayed resource values on an interval.
+function updateResourceValues() {
+    calculateResourceValuePerTick();
+    var resourceName = document.getElementById('resource-name');
+    if (modelResourceVelocity['resourceCollector'] > 0) {
+        resourceName.innerText = 'Resource (+' + formatNumberToSignificantValue(modelResourceVelocity['resourceCollector']) + ')';
+    } else if (modelResourceVelocity['resourceCollector'] < 0) {
+        resourceName.innerText = 
+            'Resource (-' + formatNumberToSignificantValue(modelResourceVelocity['resourceCollector']) + ')';
+    } else {
+        resourceName.innerText = 'Resource';
+    }
+    document.getElementById('resource-value').innerText = formatNumberToSignificantValue(modelResource['resource']);
+    document.getElementById('maxNumTownspeople').innerText = modelResource['townspeopleMax'];
+    document.getElementById('numWorkers').innerText = modelResource['townspeopleAvailable'] + '/' 
+        + modelResource['townspeopleAlive'];
+    document.getElementById('numWorkersResourceCollector').innerText = modelResource['townspeopleResourceCollector'];
+    document.getElementById('numOwnedSmallHouses').innerText = modelResource['smallHousesOwned'];
+    
+    if (is_host && is_in_a_server) {
+        var data = { resource_data: modelResource, resource_rates_data: modelResourceRates };
+        socket.emit('data_update', data);
+    }
+    
+    window.setTimeout(updateResourceValues, 100);
+}
+
+// Update the actual values of resources.
+function calculateResourceValuePerTick() {
+    //Ticks are 10 times a second, or every .1s, thus the magic number .1.
+    modelResource['resource'] += modelResourceVelocity['resourceCollector']*.1;
 }

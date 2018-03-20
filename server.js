@@ -69,12 +69,12 @@ io.on('connection', function(socket){
         current_room = '';
     });
     
-    socket.on('update_current_room_username_list', (data) => {
+    socket.on('update_current_room_name', (data) => {
         var room = null;
         if (current_room !== '') {
             room = current_room;
         }
-        socket.emit('server_return_current_room_username_list', room);
+        socket.emit('server_return_current_room_name', room);
     });
     
     socket.on('retrieve_list_of_players', (data) => {
