@@ -1,6 +1,16 @@
 Sovereign
 Last updated 10 October 2017
-===========================
+
+----------------------------
+
+Coding Standards: CSS
+All class stylings within the CSS should be organized alphabetically, except in special cases:
+In cases involving directions, such as border-top and border-bottom, it should go in the order 'top', 'bottom', 'left', then 'right'.
+Height and width styles (and their min- and max- counterparts) should always be present at the top of the class selector, in that order.
+All class stylings are kept close to other class stylings for similar components. Keep classes in a cluster with other classes related to it, such as all classes pertaining to the flavor text area.
+
+----------------------------
+
 My idea for a senior project. I have spent many hours of my life in browser based games like 
 	- Cookie Clicker [Link: http://orteil.dashnet.org/cookieclicker/], 
 	- A Dark Room [Link: http://adarkroom.doublespeakgames.com/], and 
