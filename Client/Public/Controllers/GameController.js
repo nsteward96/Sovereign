@@ -1,4 +1,3 @@
-// Problem: There is a split second where a client is transmitting data, messing up the data the host serves.
 var modelResource = {};
 var modelResourceRates = {};
 var modelResourceVelocity = {};
@@ -12,174 +11,24 @@ var is_host = true;
 var is_in_a_server = false;
 
 $(document).ready(function() {
-    socket = io('https://sovereign-nathansteward.c9users.io');
     initModels();
+    populateTitleList();
+    
     printIntroductoryMessage();
+    
     setupDynamicEventListeners();
-    
-    // Generate list of game nav buttons; add listeners to update view when clicked.
-    var gameNavButtonArray = 
-        [
-            document.getElementById('resourceGenerationNavButton'),
-            document.getElementById('manageTownNavButton'),
-            document.getElementById('manageJobsNavButton')
-        ];
-    for (let i = 0; i < gameNavButtonArray.length; i++) {
-        gameNavButtonArray[i].addEventListener('click', function() {updateSelectedView(gameNavButtonArray[i]);});
-    }
-    
-    var setUsernameButtonOriginal = document.getElementById('enterUsernameSubmit');
-    setUsernameButtonOriginal.addEventListener('click', function() {
-        setUsername();
-    });
-    
-    // Check to see if user dismissed the cookies warning.
-    var cookieLawBanner = document.getElementById('cookieLawWarning');
-    var userDismissedCookiesWarning = localStorage.getItem('cookiesWarningDismissed');
-    if (userDismissedCookiesWarning) {
-        cookieLawBanner.style.display = 'none';
-    } else {
-        var cookieLawDismissButton = document.getElementById('cookieDismiss');
-        cookieLawDismissButton.addEventListener('click', function() {
-            $(cookieLawBanner).fadeOut(250);
-            localStorage.setItem('cookiesWarningDismissed', true);
-        });
-    }
-    
-    // Listener to check if user clicks 'send' button on chat
-    var sendMessageButton = document.getElementById('submitChatText');
-    sendMessageButton.addEventListener('click', function() {
-        var messageField = document.getElementById('chatboxTextField');
-        var message = { username: username, message: messageField.value };
-        socket.emit('chat_message', message);
-        messageField.value = '';
-    });
-    
-    // User wants to bring up menu to set game password
-    var setGamePasswordButton = document.getElementById('setGamePassword');
-    setGamePasswordButton.addEventListener('click', function() {
-        revealOverlay('setGamePasswordContainer');
-    });
-    
-    var setGamePasswordCancelButton = document.getElementById('setGamePasswordCancel');
-    setGamePasswordCancelButton.addEventListener('click', function() {
-        hideOverlay();
-    });
-    
-    var setGamePasswordSubmitButton = document.getElementById('setGamePasswordSubmit');
-    var setGamePasswordField = document.getElementById('setGamePasswordField');
-    setGamePasswordSubmitButton.addEventListener('click', function() {
-        if (game_password != setGamePasswordField.value) {
-            game_password = setGamePasswordField.value;
-            joinGameSession(game_password);
-            hideOverlay();
-        } else {
-            console.log('You are already in that server!');
-        }
-    });
-    
-    var resetGamePasswordButton = document.getElementById('resetGamePassword');
-    resetGamePasswordButton.addEventListener('click', function() {
-        if (is_in_a_server) {
-            leaveGameSession();
-            is_in_a_server = false;
-            game_password = '';
-        } else {
-            console.log('You don\'t have a password set!');   
-        }
-    });
-    
-    var viewRoomOccupantsButton = document.getElementById('viewRoomOccupants');
-    viewRoomOccupantsButton.addEventListener('click', function() {
-        getUsersInCurrentRoom();
-        window.setTimeout(function() {
-            revealOverlay('viewRoomOccupantsContainer');
-        }, 50);
-    });
-    
-    var viewRoomOccupantsCloseButton = document.getElementById('viewRoomOccupantsClose');
-    viewRoomOccupantsCloseButton.addEventListener('click', function() {
-        hideOverlay();
-    });
-    
-    // Socket event listeners
-    socket.on('chat_message_from_server', function(message) {
-        var chatboxTextDisplay = document.getElementById('chatboxTextDisplay');
-        var chatMessage = document.createElement('p');
-        chatMessage.innerText = message.username + ': ' + message.message;
-        chatboxTextDisplay.appendChild(chatMessage);
-    });
-    socket.on('new_player_joined_room', function(player_name) {
-        var chatboxTextDisplay = document.getElementById('chatboxTextDisplay');
-        var chatMessage = document.createElement('p');
-        chatMessage.innerText = player_name + ' has joined the room!';
-        chatboxTextDisplay.appendChild(chatMessage);
-    });
-    socket.on('server_output_to_flavor_text_area', function(message) {
-        outputToFlavorTextArea(message); 
-    });
-    socket.on('become_client', function(data) {
-        is_host = false;
-        is_in_a_server = true;
-    });
-    socket.on('become_host', function() {
-        is_host = true;
-        is_in_a_server = true;
-    });
-    socket.on('server_says_allocate_worker', function(data) {
-        allocateWorker(data);
-    });
-    socket.on('server_says_deallocate_worker', function(data) {
-        deallocateWorker(data);
-    });
-    socket.on('server_says_buy_building', function(data) {
-        buyBuilding(data);
-    });
-    socket.on('server_says_generate_resource', function() {
-        generateResource();
-    });
-    socket.on('server_update_data', function(data) {
-        updateWithDataFromServer(data);
-    });
-    socket.on('kick_from_room', function(data) {
-        leaveGameSession();
-    });
-    socket.on('list_of_players', function(data) {
-        var playerListContainer = document.getElementById('viewRoomOccupantsOccupants');
-        // Empty list of players
-        while (playerListContainer.firstChild) {
-            playerListContainer.removeChild(playerListContainer.firstChild);
-        }
-        
-        var playerListStartString = document.createElement('p');
-        playerListStartString.innerText = 'Players in this room:';
-        playerListContainer.appendChild(playerListStartString);
-        // Generate new list of players
-        for (var i = 0; i < data['username_list'].length; i++) {
-            var playerContainer = document.createElement('div');
-            var playerName = document.createElement('p');
-            playerName.innerText = data['username_list'][i];
-            if (playerName.innerText === data['host_username']) {
-                $(playerName).addClass('host-user');
-                playerName.title = 'This user is currently the host';
-            }
-            playerContainer.appendChild(playerName);
-            playerListContainer.appendChild(playerContainer);
-        }
-    });
-    socket.on('server_return_current_room_username_list', function(data) {
-        var viewRoomOccupantsRoomName = document.getElementById('viewRoomOccupantsRoomName');
-        viewRoomOccupantsRoomName.innerText = 'Current Room: ' + data;
-    });
+    setupStaticEventListeners();
+    setupServerEmitListeners();
     
     autosaveTimer();
     townspeopleArrivalTimer();
     updateResourceValues();
-    populateTitleList();
 });
 
 // Initializes models with content.
 function initModels() {
+    // Setup socket - connection to server
+    socket = io('https://sovereign-nathansteward.c9users.io');
     // Init all resource values to 0.
     modelResource['resource'] = 0;
     modelResource['townspeopleAvailable'] = 0;
@@ -606,6 +455,8 @@ function leaveGameSession() {
     }, 250);
 }
 
+// Event listeners that need to be dynamic - they operate differently based on
+// whether or not the user is in a server with another player.
 function setupDynamicEventListeners() {
     var addWorkerButtonArray = document.getElementsByClassName('add-worker');
     var addWorkerButtonIdArray = [];
@@ -656,6 +507,184 @@ function setupDynamicEventListeners() {
             socket.emit('generate_resource');
         }
     });
+    
+    // Listener to check if user clicks 'send' button on chat
+    var sendMessageButton = document.getElementById('submitChatText');
+    sendMessageButton.addEventListener('click', function() {
+        var messageField = document.getElementById('chatboxTextField');
+        var message;
+        if (is_in_a_server) {
+            message = { username: username, message: messageField.value };
+            socket.emit('chat_message', message);
+        } else {
+            message = 'Nobody else is here!';
+            createChatMessage(message);
+        }
+        messageField.value = '';
+    });
+    
+    // User submits a game password in the menu to set game password
+    var setGamePasswordSubmitButton = document.getElementById('setGamePasswordSubmit');
+    var setGamePasswordField = document.getElementById('setGamePasswordField');
+    setGamePasswordSubmitButton.addEventListener('click', function() {
+        if (game_password != setGamePasswordField.value) {
+            game_password = setGamePasswordField.value;
+            joinGameSession(game_password);
+            hideOverlay();
+        } else {
+            console.log('You are already in that server!');
+        }
+    });
+    
+    // User clicks the reset game password button
+    var resetGamePasswordButton = document.getElementById('resetGamePassword');
+    resetGamePasswordButton.addEventListener('click', function() {
+        if (is_in_a_server) {
+            leaveGameSession();
+            is_in_a_server = false;
+            game_password = '';
+        } else {
+            console.log('You don\'t have a password set!');   
+        }
+    });
+
+}
+
+// Event listeners that are static - they operate independently of the user's
+// presence in a server.
+function setupStaticEventListeners() {
+    // Generate list of game nav buttons; the view is changed when they are clicked.
+    var gameNavButtonArray = 
+        [
+            document.getElementById('resourceGenerationNavButton'),
+            document.getElementById('manageTownNavButton'),
+            document.getElementById('manageJobsNavButton')
+        ];
+    for (let i = 0; i < gameNavButtonArray.length; i++) {
+        gameNavButtonArray[i].addEventListener('click', function() {updateSelectedView(gameNavButtonArray[i]);});
+    }
+    
+    var setUsernameButtonOriginal = document.getElementById('enterUsernameSubmit');
+    setUsernameButtonOriginal.addEventListener('click', function() {
+        setUsername();
+    });
+    
+    // Check to see if user dismissed the cookies warning.
+    var cookieLawBanner = document.getElementById('cookieLawWarning');
+    var userDismissedCookiesWarning = localStorage.getItem('cookiesWarningDismissed');
+    if (userDismissedCookiesWarning) {
+        cookieLawBanner.style.display = 'none';
+    } else {
+        var cookieLawDismissButton = document.getElementById('cookieDismiss');
+        cookieLawDismissButton.addEventListener('click', function() {
+            $(cookieLawBanner).fadeOut(250);
+            localStorage.setItem('cookiesWarningDismissed', true);
+        });
+    }
+    
+    // User clicks button to view menu to set game password
+    var setGamePasswordButton = document.getElementById('setGamePassword');
+    setGamePasswordButton.addEventListener('click', function() {
+        revealOverlay('setGamePasswordContainer');
+    });
+    
+    // User dismisses the menu to set game password
+    var setGamePasswordCancelButton = document.getElementById('setGamePasswordCancel');
+    setGamePasswordCancelButton.addEventListener('click', function() {
+        hideOverlay();
+    });
+    
+    // User clicks the view room occupants button
+    var viewRoomOccupantsButton = document.getElementById('viewRoomOccupants');
+    viewRoomOccupantsButton.addEventListener('click', function() {
+        getUsersInCurrentRoom();
+        window.setTimeout(function() {
+            revealOverlay('viewRoomOccupantsContainer');
+        }, 50);
+    });
+    
+    // User dismisses the menu to view room occupants
+    var viewRoomOccupantsCloseButton = document.getElementById('viewRoomOccupantsClose');
+    viewRoomOccupantsCloseButton.addEventListener('click', function() {
+        hideOverlay();
+    });
+}
+
+function setupServerEmitListeners() {
+    socket.on('chat_message_from_server', function(message) {
+        createChatMessage(message);
+    });
+    
+    socket.on('new_player_joined_room', function(player_name) {
+        var chatboxTextDisplay = document.getElementById('chatboxTextDisplay');
+        var chatMessage = document.createElement('p');
+        chatMessage.innerText = player_name + ' has joined the room!';
+        chatboxTextDisplay.appendChild(chatMessage);
+    });
+    
+    socket.on('server_output_to_flavor_text_area', function(message) {
+        outputToFlavorTextArea(message); 
+    });
+    
+    socket.on('become_client', function(data) {
+        is_host = false;
+        is_in_a_server = true;
+    });
+    socket.on('become_host', function() {
+        is_host = true;
+        is_in_a_server = true;
+    });
+    
+    socket.on('server_says_allocate_worker', function(data) {
+        allocateWorker(data);
+    });
+    socket.on('server_says_deallocate_worker', function(data) {
+        deallocateWorker(data);
+    });
+    socket.on('server_says_buy_building', function(data) {
+        buyBuilding(data);
+    });
+    socket.on('server_says_generate_resource', function() {
+        generateResource();
+    });
+    
+    socket.on('server_update_data', function(data) {
+        updateWithDataFromServer(data);
+    });
+    
+    socket.on('kick_from_room', function(data) {
+        leaveGameSession();
+    });
+    
+    socket.on('list_of_players', function(data) {
+        var playerListContainer = document.getElementById('viewRoomOccupantsOccupants');
+        // Empty list of players
+        while (playerListContainer.firstChild) {
+            playerListContainer.removeChild(playerListContainer.firstChild);
+        }
+        
+        var playerListStartString = document.createElement('p');
+        playerListStartString.innerText = 'Players in this room:';
+        playerListContainer.appendChild(playerListStartString);
+        // Generate new list of players
+        for (var i = 0; i < data['username_list'].length; i++) {
+            var playerContainer = document.createElement('div');
+            var playerName = document.createElement('p');
+            playerName.innerText = data['username_list'][i];
+            if (playerName.innerText === data['host_username']) {
+                $(playerName).addClass('host-user');
+                playerName.title = 'This user is currently the host';
+            }
+            playerContainer.appendChild(playerName);
+            playerListContainer.appendChild(playerContainer);
+        }
+    });
+    
+    socket.on('server_return_current_room_username_list', function(data) {
+        var viewRoomOccupantsRoomName = document.getElementById('viewRoomOccupantsRoomName');
+        viewRoomOccupantsRoomName.innerText = 'Current Room: ' + data;
+    });
+
 }
 
 // Updates the current game interface with data from another player's hosted game.
@@ -725,4 +754,15 @@ function hideServerButtons() {
 // Shows user a list of the users in the current room. Excludes themself.
 function getUsersInCurrentRoom() {
     socket.emit('retrieve_list_of_players');
+}
+
+function createChatMessage(message) {
+    var chatboxTextDisplay = document.getElementById('chatboxTextDisplay');
+    var chatMessage = document.createElement('p');
+    if (message.username && message.message) {
+        chatMessage.innerText = message.username + ': ' + message.message;
+    } else {
+        chatMessage.innerText = message;
+    }
+    chatboxTextDisplay.appendChild(chatMessage);
 }
