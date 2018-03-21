@@ -178,10 +178,10 @@ function printIntroductoryMessage() {
 
 // Output text to the flavor text area.
 function outputToFlavorTextArea(text) {
-    var flavorTextArea = document.getElementById('flavorTextArea');
     if (is_host && is_in_a_server) {
         socket.emit('host_broadcast_output_to_flavor_text_area', text);
     }
+    var flavorTextArea = document.getElementById('flavorTextArea');
     var message = document.createElement('div');
     message.classList = 'flavor-text-area-message';
     var messageContent = document.createElement('p');
@@ -355,14 +355,26 @@ function generateResource() {
 
 // Creates a message in the chat box.
 function createChatMessage(message) {
-    var chatboxTextDisplay = document.getElementById('chatboxTextDisplay');
-    var chatMessage = document.createElement('p');
-    if (message.username && message.message) {
-        chatMessage.innerText = message.username + ': ' + message.message;
-    } else {
-        chatMessage.innerText = message;
+    if (checkChatMessagePresence(message)) {
+        var chatboxTextDisplay = document.getElementById('chatboxTextDisplay');
+        var chatMessage = document.createElement('p');
+        if (message.username && message.message) {
+            chatMessage.innerText = message.username + ': ' + message.message;
+        } else {
+            chatMessage.innerText = message;
+        }
+        $(chatboxTextDisplay).prepend(chatMessage);
     }
-    chatboxTextDisplay.appendChild(chatMessage);
+}
+
+// Checks that a chat message is not empty
+function checkChatMessagePresence(message) {
+    if (typeof message === 'object' && $.trim(message.message) !== '') {
+        return true;
+    } else if (typeof message === 'string' && $.trim(message) !== '') {
+        return true;
+    }
+    return false;
 }
 
 // Joins a game room after the user has entered in a password and submitted it.
