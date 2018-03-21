@@ -541,9 +541,7 @@ function getUsersInCurrentRoom() {
 // certain messages from the server.
 function setupServerEmitListeners() {
     socket.on('chat_message_from_server', function(message) {
-        if (message != '') {
-            createChatMessage(message);
-        }
+        createChatMessage(message);
     });
     
     socket.on('new_player_joined_game', function(player_name) {
