@@ -95,6 +95,10 @@ body, html {
     display: none;
 }
 
+.flavor-text-area-message-new {
+    background-color: #A17979;
+}
+
 .flavor-text-area-message-border-bottom {
     width: 55%;
     border-bottom: 1.5px solid #705858;

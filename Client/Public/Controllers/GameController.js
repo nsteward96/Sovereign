@@ -186,6 +186,15 @@ function outputToFlavorTextArea(text) {
     message.classList = 'flavor-text-area-message';
     var messageContent = document.createElement('p');
     messageContent.innerText = text;
+    
+    // Adds highlighting to new message; removed when user hovers over it.
+    // User can enable/disable this feature in options in a future update.
+    $(messageContent).addClass('flavor-text-area-message-new');
+    messageContent.addEventListener('mouseover', function removeHighlight() {
+        $(messageContent).removeClass('flavor-text-area-message-new');
+        messageContent.removeEventListener('mouseover', removeHighlight);
+    });
+    
     var messageBorderBottom = document.createElement('div');
     messageBorderBottom.classList = 'flavor-text-area-message-border-bottom';
     message.appendChild(messageContent);
