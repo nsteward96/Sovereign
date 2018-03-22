@@ -48,6 +48,10 @@ body, html {
     text-decoration: underline;
 }
 
+.unselectable.text-button-spacing {
+    margin: 0px 7.5px;
+}
+
 /***** All Main Game Custom Stylings *****/
 .game-area {
     height: calc(100% - 30px);
@@ -68,7 +72,7 @@ body, html {
     color: white;
     font-family: 'Fondamento', cursive;
     font-size: 20px;
-    margin-right: 5px;
+    margin-right: 7.5px;
 }
 
 .game-navbar > .btn:hover {
