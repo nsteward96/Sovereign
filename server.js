@@ -92,11 +92,17 @@ io.on('connection', function(socket){
     socket.on('allocate_worker', (data) => {
         io.to(current_host_user[current_room].id).emit('server_says_allocate_worker', data);
     });
+    socket.on('update_resource_velocity', (data) => {
+        socket.to(current_room).broadcast.emit('update_resource_velocity_server', data);
+    });
     socket.on('deallocate_worker', (data) => {
         io.to(current_host_user[current_room].id).emit('server_says_deallocate_worker', data);
     });
     socket.on('buy_building', (data) => {
         io.to(current_host_user[current_room].id).emit('server_says_buy_building', data);
+    });
+    socket.on('update_tooltip_building_price', (data) => {
+        socket.to(current_room).broadcast.emit('update_tooltip_building_price_server', data); 
     });
     socket.on('generate_resource', (data) => {
         io.to(current_host_user[current_room].id).emit('server_says_generate_resource');
