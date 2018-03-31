@@ -268,8 +268,6 @@ function setupTooltipEventListeners() {
         tooltips[i].parentElement.addEventListener('mouseenter', displayTooltip(tooltips[i]));
         tooltips[i].parentElement.removeEventListener('mouseout', hideTooltip(tooltips[i]));
         tooltips[i].parentElement.addEventListener('mouseout', hideTooltip(tooltips[i]));
-        // $(tooltips[i].parentElement).off('mouseenter').on('mouseenter', displayTooltip(tooltips[i]));
-        // $(tooltips[i].parentElement).off('mouseout').on('mouseout', hideTooltip(tooltips[i]));
     }
 }
 
