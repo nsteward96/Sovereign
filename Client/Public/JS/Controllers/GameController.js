@@ -100,7 +100,7 @@ function initModels() {
             basePrice: {'resource': 50},
             resourceType: ['resource'],
             price: determineCurrentPriceBuilding({'resource': 50}, modelResource['smallHousesOwned']),
-            buyButton: 'buildingSmallHouseBuyButton'
+            buyButtonId: 'buildingSmallHouseBuyButton'
         };
     
     // Create the tooltips.
@@ -134,6 +134,62 @@ function determineCurrentPriceBuilding(basePrice, numOwned) {
         }
     }
     return finalPrice;
+}
+
+// Creates the tooltips for the game.
+function createTooltips() {
+    $('.tooltip-container').remove();
+    var createSmallHouseBuyButtonTooltip = function() {
+        var price = {};
+        for (let resourceType in modelBuildings['smallHouse']['price']) {
+            price[resourceType] = modelBuildings['smallHouse']['price'][resourceType];
+        }
+        var hashOptions = {
+            'title': 'Small shack',
+            'description': 'A humble shelter for the weary. It is small and cramped, but it\'s better than the Wilds.',
+            'buyprice': price,
+            'effects': 'Adds room for 2 new townspeople'
+        };
+        document.getElementById(modelBuildings['smallHouse']['buyButtonId']).appendChild(TooltipBuilder(hashOptions));
+    };
+    var createResourceCollectorTooltip = function() {
+        var hashOptions = {
+            'title': 'Resource collector',
+            'description': 'More resources for the lord!',
+            'effects': 'Each worker gives .5 resources a second',
+            'workervelocity': modelJobs['resourceCollector']['velocity']
+        };
+        document.getElementById(modelJobs['resourceCollector']['allocateButtonId']).appendChild(TooltipBuilder(hashOptions));
+        document.getElementById(modelJobs['resourceCollector']['deallocateButtonId']).appendChild(TooltipBuilder(hashOptions));
+    };
+
+    createSmallHouseBuyButtonTooltip();
+    createResourceCollectorTooltip();
+    
+    setupTooltipEventListeners();
+}
+
+// Sets up the event listeners to display and hide the tooltips.
+function setupTooltipEventListeners() {
+    var displayTooltip = function(tooltip) {
+        return function() {
+            tooltip.style = 'display: block;';
+        };
+    };
+
+    var hideTooltip = function(tooltip) {
+        return function() {
+            tooltip.style = 'display: none;';
+        };
+    };
+    
+    var tooltips = document.getElementsByClassName('tooltip-container');
+    for (let i = 0; i < tooltips.length; i++) {
+        tooltips[i].parentElement.removeEventListener('mouseenter', displayTooltip(tooltips[i]));
+        tooltips[i].parentElement.addEventListener('mouseenter', displayTooltip(tooltips[i]));
+        tooltips[i].parentElement.removeEventListener('mouseout', hideTooltip(tooltips[i]));
+        tooltips[i].parentElement.addEventListener('mouseout', hideTooltip(tooltips[i]));
+    }
 }
 
 // Sets up the list of titles that a user can select from in the name-setup process.
@@ -215,60 +271,6 @@ function outputToFlavorTextArea(text) {
     $(flavorTextArea).prepend(message);
     var messageJustAppended = flavorTextArea.childNodes[0];
     $(messageJustAppended).fadeIn(350);
-}
-
-function createTooltips() {
-    $('.tooltip-container').remove();
-    var createSmallHouseBuyButtonTooltip = function() {
-        var price = {};
-        for (let resourceType in modelBuildings['smallHouse']['price']) {
-            price[resourceType] = modelBuildings['smallHouse']['price'][resourceType];
-        }
-        var hashOptions = {
-            'title': 'Small shack',
-            'description': 'A humble shelter for the weary. It is small and cramped, but it\'s better than the Wilds.',
-            'buyprice': price,
-            'effects': 'Adds room for 2 new townspeople'
-        };
-        document.getElementById(modelBuildings['smallHouse']['buyButton']).appendChild(TooltipBuilder(hashOptions));
-    };
-    var createResourceCollectorTooltip = function() {
-        var hashOptions = {
-            'title': 'Resource collector',
-            'description': 'More resources for the lord!',
-            'effects': 'Each worker gives .5 resources a second',
-            'workervelocity': modelJobs['resourceCollector']['velocity']
-        };
-        document.getElementById(modelJobs['resourceCollector']['allocateButtonId']).appendChild(TooltipBuilder(hashOptions));
-        document.getElementById(modelJobs['resourceCollector']['deallocateButtonId']).appendChild(TooltipBuilder(hashOptions));
-    };
-
-    createSmallHouseBuyButtonTooltip();
-    createResourceCollectorTooltip();
-    
-    setupTooltipEventListeners();
-}
-
-function setupTooltipEventListeners() {
-    var displayTooltip = function(tooltip) {
-        return function() {
-            tooltip.style = 'display: block;';
-        };
-    };
-
-    var hideTooltip = function(tooltip) {
-        return function() {
-            tooltip.style = 'display: none;';
-        };
-    };
-    
-    var tooltips = document.getElementsByClassName('tooltip-container');
-    for (let i = 0; i < tooltips.length; i++) {
-        tooltips[i].parentElement.removeEventListener('mouseenter', displayTooltip(tooltips[i]));
-        tooltips[i].parentElement.addEventListener('mouseenter', displayTooltip(tooltips[i]));
-        tooltips[i].parentElement.removeEventListener('mouseout', hideTooltip(tooltips[i]));
-        tooltips[i].parentElement.addEventListener('mouseout', hideTooltip(tooltips[i]));
-    }
 }
 
 // Event listeners that need to be dynamic - they operate differently based on
@@ -452,7 +454,7 @@ function buyBuilding(buyBuildingButton) {
 }
 
 function updateTooltipPrice(building) {
-    var tooltip = document.getElementById(building['buyButton']).children[0];
+    var tooltip = document.getElementById(building['buyButtonId']).children[0];
     var tooltipPrice = $(tooltip).find('.tooltip-buy-price')[0];
     $(tooltipPrice).empty();
     
@@ -804,7 +806,7 @@ function updateWithDataFromServer(data) {
             basePrice: {'resource': 50},
             resourceType: ['resource'],
             price: determineCurrentPriceBuilding({'resource': 50}, modelResource['smallHousesOwned']),
-            buyButton: 'buildingSmallHouseBuyButton'
+            buyButtonId: 'buildingSmallHouseBuyButton'
         };
 }
 
