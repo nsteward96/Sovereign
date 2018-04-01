@@ -90,8 +90,8 @@ function initModels() {
             id: 'jobResourceCollector',
             resourceType: ['resource'],
             velocity: {'resource': modelResourceRates['resourceCollector'] * modelResource['townspeopleResourceCollector']},
-            allocateButton: 'resourceCollectorAddWorker',
-            deallocateButton: 'resourceCollectorRemoveWorker'
+            allocateButtonId: 'resourceCollectorAddWorker',
+            deallocateButtonId: 'resourceCollectorRemoveWorker'
         };
     // Init the buildings model.
     modelBuildings['smallHouse'] = 
@@ -239,8 +239,8 @@ function createTooltips() {
             'effects': 'Each worker gives .5 resources a second',
             'workervelocity': modelJobs['resourceCollector']['velocity']
         };
-        document.getElementById(modelJobs['resourceCollector']['allocateButton']).appendChild(TooltipBuilder(hashOptions));
-        document.getElementById(modelJobs['resourceCollector']['deallocateButton']).appendChild(TooltipBuilder(hashOptions));
+        document.getElementById(modelJobs['resourceCollector']['allocateButtonId']).appendChild(TooltipBuilder(hashOptions));
+        document.getElementById(modelJobs['resourceCollector']['deallocateButtonId']).appendChild(TooltipBuilder(hashOptions));
     };
 
     createSmallHouseBuyButtonTooltip();
@@ -395,8 +395,8 @@ function updateResourceVelocity() {
 function updateTooltipWorkerVelocity(worker) {
     var tooltips = 
         [
-            document.getElementById(worker['allocateButton']).children[0], 
-            document.getElementById(worker['deallocateButton']).children[0]
+            document.getElementById(worker['allocateButtonId']).children[0], 
+            document.getElementById(worker['deallocateButtonId']).children[0]
         ];
     var tooltipVelocities = 
         [
@@ -794,8 +794,8 @@ function updateWithDataFromServer(data) {
             id: 'jobResourceCollector',
             resourceType: ['resource'],
             velocity: {'resource': modelResourceRates['resourceCollector'] * modelResource['townspeopleResourceCollector']},
-            allocateButton: 'resourceCollectorAddWorker',
-            deallocateButton: 'resourceCollectorRemoveWorker'
+            allocateButtonId: 'resourceCollectorAddWorker',
+            deallocateButtonId: 'resourceCollectorRemoveWorker'
         };
     // Init the buildings model.
     modelBuildings['smallHouse'] = 
