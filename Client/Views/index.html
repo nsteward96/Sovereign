@@ -77,8 +77,7 @@
                             <div class="building-container" id="buildingSmallHouse">
                                 <div class="building-display-box"></div>
                                 <div class="building-description-box">
-                                    "A sturdy shack. Uncomfortable, but it gets the job done."<br /> +2 Max Townspeople<br /><br />
-                                    <span id="numOwnedSmallHouses"></span> currently in your dominion.
+                                    <span id="numOwnedSmallHouses"></span> built.
                                 </div>
                                 <div class="buy-building" id="buildingSmallHouseBuyButton">Buy</div>
                             </div>
@@ -94,11 +93,10 @@
                             <div class="job-container" id="jobResourceCollector">
                                 <div class="job-display-box"></div>
                                 <div class="job-description-box">
-                                    "A simple farmer."<br /> +0.5 resource/sec.<br /><br /><br />
-                                    <span id="numWorkersResourceCollector"></span> working for you right now.
+                                    <span id="numWorkersResourceCollector"></span> on the job.
                                 </div>
-                                <div class="add-worker">+</div>
-                                <div class="remove-worker">-</div>
+                                <div class="add-worker" id="resourceCollectorAddWorker">+</div>
+                                <div class="remove-worker" id="resourceCollectorRemoveWorker">-</div>
                             </div>
                         </div>
                     </div>
@@ -149,11 +147,12 @@
         <!-- Scripts -->
         <script src="/socket.io/socket.io.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
-        <script src="/Controllers/jquery-3.2.1.min.js"></script>
+        <script src="/JS/jquery-3.2.1.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
-        <script src="/Controllers/StringFormatController.js"></script>
-        <script src="/Controllers/GameController.js"></script>
+        <script src="/JS/Formatters/StringFormatter.js"></script>
+        <script src="/JS/Builders/TooltipBuilder.js"></script>
+        <script src="/JS/Controllers/GameController.js"></script>
         <!-- End Scripts -->
     </body>
 </html>

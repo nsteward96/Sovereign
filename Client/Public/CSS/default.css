@@ -140,14 +140,15 @@ body, html {
 }
 
 .job-container, .building-container {
-    height: 327px;
+    height: 226px;
     width: calc(24% - 2.5px);
     border: 1px solid #444;
     display: inline-block;
-    float: left;
     font-size: 0;
     margin: .5%;
+    position: relative;
     text-align: center;
+    vertical-align: top;
 }
 
 .job-container#workerStatsDisplay {
@@ -164,7 +165,6 @@ body, html {
 }
 
 .job-description-box, .building-description-box {
-    height: 125px;
     font-size: 16px;
 }
 
@@ -432,6 +432,52 @@ body, html {
     font-family: 'Fondamento', cursive;
     font-size: 20px;
     position: relative;
+}
+
+/* Tooltip Stylings */
+.tooltip-container {
+    width: 100%;
+    background-color: #505050;
+    border: 2px groove #666666;
+    bottom: -1px;
+    box-shadow: 3px 3px 10px #666666;
+    color: white;
+    display: none;
+    font-size: 12px;
+    left: calc(100% + 5px);
+    letter-spacing: -.06em;
+    padding: 0 3%;
+    position: absolute;
+    word-wrap: break-word;
+    z-index: 10000;
+}
+
+.tooltip-container > div {
+    border-top: 1px outset #666;
+    border-bottom: 1px outset #666;
+    text-align: left;
+}
+
+.tooltip-container > div:last-child {
+    border-bottom: 0;
+}
+
+.tooltip-container > div:first-child {
+    border-top: 0;
+}
+
+.tooltip-container > .tooltip-buy-price,
+.tooltip-container > .tooltip-sell-price,
+.tooltip-container > .tooltip-worker-velocity {
+    text-align: right;
+}
+
+.tooltip-title {
+    font-size: 16px;
+}
+
+.tooltip-description {
+    font-style: italic;
 }
 
 /***** End All Main Game Custom Stylings *****/
