@@ -80,12 +80,19 @@ function TooltipBuilder(params) {
         if (sellprice !== undefined) {
             var sellPriceDiv = document.createElement('div');
             sellPriceDiv.classList = 'tooltip-sell-price';
+            
             for (let resource in sellprice) {
                 var resourceGained = document.createElement('div');
                 resourceGained.classList = 'tooltip-sell-price-component';
-                resourceGained.innerText = sellprice[resource] + ' ' + resource;
+                resourceGained.innerText = formatNumberToSignificantValue(sellprice[resource]) + ' ' + resource;
                 sellPriceDiv.appendChild(resourceGained);
             }
+            
+            var sellpriceString = document.createElement('span');
+            sellpriceString.innerText = 'Sells for: ';
+            sellpriceString.style = 'position: absolute; left: 3%;';
+            sellPriceDiv.firstChild.prepend(sellpriceString);
+            
             return sellPriceDiv;
         }
         return null;
