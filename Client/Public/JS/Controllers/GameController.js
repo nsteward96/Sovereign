@@ -235,17 +235,23 @@ function populateTitleList() {
         'the Traitor', 'the Trite', 'the Underhanded', 'the Untamed', 
         'the Viper', 'the Vixen', 'the Wanted', 'the Witty', 'the Yapper', 'the Zealous'
     ];
-    var randomTitleNumber = Math.floor(Math.random() * titleList.length);
     var titleOptionContainer = document.getElementById('usernameTitles');
     for (var i = 0; i < titleList.length; i++) {
         var optionObject = document.createElement('option');
         optionObject.setAttribute('value', titleList[i]);
         optionObject.innerText = titleList[i];
-        if (i === randomTitleNumber) {
-            optionObject.setAttribute('selected', 'selected');
-        }
         titleOptionContainer.appendChild(optionObject);
     }
+    randomizeSelectedTitle();
+}
+
+function randomizeSelectedTitle() {
+    var usernameTitles = document.getElementById('usernameTitles');
+    var options = $(usernameTitles).find('option');
+    var randomId = Math.floor(Math.random() * options.length);
+    
+    $(options).filter(':selected').removeAttr('selected');
+    options[randomId].setAttribute('selected', true);
 }
 
 // Print some flavor text to the console when the user starts a new session.
@@ -370,6 +376,24 @@ function setupDynamicEventListeners() {
             game_password = '';
         } else {
             console.log('You don\'t have a password set!');   
+        }
+    });
+    
+    var resetGameButton = document.getElementById('resetGameButton');
+    resetGameButton.addEventListener('click', function() {
+        if (is_in_a_server) {
+            console.log('Please leave the game server if you wish to reset your game.');
+        } else {
+            revealOverlay('resetGameConfirmationContainer');
+        }
+    });
+    
+    var resetGameConfirmationButton = document.getElementById('resetGameConfirmationButton');
+    resetGameConfirmationButton.addEventListener('click', function() {
+        if (is_in_a_server) {
+            console.log('Please leave the game server if you wish to reset your game.');
+        } else {
+            eraseGameProgress();
         }
     });
 }
@@ -600,6 +624,14 @@ function hideServerButtons() {
     $(document.getElementById('serverButtonsContainer')).fadeOut();
 }
 
+function eraseGameProgress() {
+    localStorage.removeItem('modelResource');
+    localStorage.removeItem('modelResourceRates');
+    localStorage.removeItem('username');
+    randomizeSelectedTitle();
+    initModels();
+}
+
 // Event listeners that are static - they operate independently of the user's
 // presence in a server.
 function setupStaticEventListeners() {
@@ -617,8 +649,10 @@ function setupStaticEventListeners() {
     }
     
     var setUsernameButtonOriginal = document.getElementById('enterUsernameSubmit');
+    var setUsernameField = document.getElementById('enterUsernameField');
     setUsernameButtonOriginal.addEventListener('click', function() {
         setUsername();
+        setUsernameField.value = '';
     });
     
     // Check to see if user dismissed the cookies warning.
@@ -658,6 +692,11 @@ function setupStaticEventListeners() {
     // User dismisses the menu to view room occupants
     var viewRoomOccupantsCloseButton = document.getElementById('viewRoomOccupantsClose');
     viewRoomOccupantsCloseButton.addEventListener('click', function() {
+        hideOverlay();
+    });
+    
+    var resetGameConfirmationCancel = document.getElementById('resetGameConfirmationCancel');
+    resetGameConfirmationCancel.addEventListener('click', function() {
         hideOverlay();
     });
 }
