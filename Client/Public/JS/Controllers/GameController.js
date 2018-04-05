@@ -45,11 +45,13 @@ function initModels() {
     modelResourceRates['resourceCollector'] = 0.5; // Resource generated per Resource collector
     modelResourceRates['incrementalGrowthRateBuildings'] = 1.15; // Cost increase per building
     modelResourceRates['smallHouse'] = 2; // Increase of max residents per house
+    
     // Retrieve any stored user resource data.
     var storedResourceData = JSON.parse(localStorage.getItem('modelResource'));
     var storedUsername = JSON.parse(localStorage.getItem('username'));
     var storedResourceRatesData = JSON.parse(localStorage.getItem('modelResourceRates'));
-    // Replace default resource values with saved resource values.
+    
+    // Replace default values with saved resource values.
     if (storedResourceData !== null) {
         modelResource['resource'] = storedResourceData['resource'];
         modelResource['townspeopleAvailable'] = storedResourceData['townspeopleAvailable'];
@@ -64,10 +66,10 @@ function initModels() {
     } else {
         revealOverlay('enterUsername');
     }
-    // Replace default resource rate values with saved resource rate values.
     if (storedResourceRatesData !== null) {
         modelResourceRates['resourceCollector'] = storedResourceRatesData['resourceCollector'];
     }
+    
     // Init the views model.
     modelViews['resourceGenerationView'] = 
         {
@@ -100,7 +102,8 @@ function initModels() {
             basePrice: {'resource': 50},
             resourceType: ['resource'],
             price: determineCurrentPriceBuilding({'resource': 50}, modelResource['smallHousesOwned']),
-            buyButtonId: 'buildingSmallHouseBuyButton'
+            buyButtonId: 'buildingSmallHouseBuyButton',
+            sellButtonId: 'buildingSmallHouseSellButton'
         };
     
     // Create the tooltips.
@@ -122,8 +125,6 @@ function revealOverlay(id) {
 
 // Returns the current price of a building.
 function determineCurrentPriceBuilding(basePrice, numOwned) {
-    // You can't set a variable equal to an object like you can for a primitive.
-    // Setting a variable equal to an object will always create a pointer, not a reference.
     var finalPrice = {};
     for (let resourceType in basePrice) {
         finalPrice[resourceType] = basePrice[resourceType];
@@ -148,9 +149,22 @@ function createTooltips() {
             'title': 'Small shack',
             'description': 'A humble shelter for the weary. It is small and cramped, but it\'s better than the Wilds.',
             'buyprice': price,
-            'effects': 'Adds room for 2 new townspeople'
+            'effects': 'Adds room for 2 new townspeople.'
         };
         document.getElementById(modelBuildings['smallHouse']['buyButtonId']).appendChild(TooltipBuilder(hashOptions));
+    };
+    var createSmallHouseSellButtonTooltip = function() {
+        var sellprice = {};
+        for (let resourceType in modelBuildings['smallHouse']['price']) {
+            sellprice[resourceType] = ((modelBuildings['smallHouse']['price'][resourceType]) / 1.15) * .75;
+        }
+        var hashOptions = {
+            'title': 'Small shack',
+            'description': 'A humble shelter for the weary. It is small and cramped, but it\'s better than the Wilds.',
+            'sellprice': sellprice,
+            'effects': 'Sell a shack. Must have 2 available (unemployed) townspeople in order to sell.'
+        };
+        document.getElementById(modelBuildings['smallHouse']['sellButtonId']).appendChild(TooltipBuilder(hashOptions));
     };
     var createResourceCollectorTooltip = function() {
         var hashOptions = {
@@ -164,6 +178,7 @@ function createTooltips() {
     };
 
     createSmallHouseBuyButtonTooltip();
+    createSmallHouseSellButtonTooltip();
     createResourceCollectorTooltip();
     
     setupTooltipEventListeners();
@@ -276,47 +291,39 @@ function outputToFlavorTextArea(text) {
 // Event listeners that need to be dynamic - they operate differently based on
 // whether or not the user is in a server with another player.
 function setupDynamicEventListeners() {
-    var addWorkerButtonArray = document.getElementsByClassName('add-worker');
-    var addWorkerButtonIdArray = [];
-    for (let i = 0; i < addWorkerButtonArray.length; i++) {
-        addWorkerButtonIdArray[i] = addWorkerButtonArray[i].parentElement.id;
-    }
-    var removeWorkerButtonArray = document.getElementsByClassName('remove-worker');
-    var removeWorkerButtonIdArray = [];
-    for (let i = 0; i < removeWorkerButtonArray.length; i++) {
-        removeWorkerButtonIdArray[i] = removeWorkerButtonArray[i].parentElement.id;
-    }
-    for (let i = 0; i < addWorkerButtonArray.length; i++) {
-        addWorkerButtonArray[i].addEventListener('click', function() {
+    for (let key in modelJobs) {
+        document.getElementById(modelJobs[key]['allocateButtonId']).addEventListener('click', function() {
             if (is_host) {
-                allocateWorker(addWorkerButtonIdArray[i]);
+                allocateWorker(modelJobs[key]);
             } else {
-                socket.emit('allocate_worker', addWorkerButtonIdArray[i]);
+                socket.emit('allocate_worker', modelJobs[key]);
             }
         });
-        removeWorkerButtonArray[i].addEventListener('click', function() {
+        document.getElementById(modelJobs[key]['deallocateButtonId']).addEventListener('click', function() {
             if (is_host) {
-                deallocateWorker(removeWorkerButtonIdArray[i]);
+                deallocateWorker(modelJobs[key]);
             } else {
-                socket.emit('deallocate_worker', removeWorkerButtonIdArray[i]);
+                socket.emit('deallocate_worker', modelJobs[key]);
             }
         });
     }
-    var buyBuildingButtonArray = document.getElementsByClassName('buy-building');
-    var buyBuildingButtonIdArray = [];
-    for (let i = 0; i < buyBuildingButtonArray.length; i++) {
-        buyBuildingButtonIdArray[i] = buyBuildingButtonArray[i].parentElement.id;
-    }
-    for (let i = 0; i < buyBuildingButtonArray.length; i++) {
-        buyBuildingButtonArray[i].addEventListener('click', function() {
+    for (let key in modelBuildings) {
+        document.getElementById(modelBuildings[key]['buyButtonId']).addEventListener('click', function() {
             if (is_host) {
-                buyBuilding(buyBuildingButtonIdArray[i]);
+                buyBuilding(modelBuildings[key]);
             } else {
-                socket.emit('buy_building', buyBuildingButtonIdArray[i]);
+                socket.emit('buy_building', modelBuildings[key]);
+            }
+        });
+        document.getElementById(modelBuildings[key]['sellButtonId']).addEventListener('click', function() {
+            if (is_host) {
+                sellBuilding(modelBuildings[key]);
+            } else {
+                socket.emit('sell_building', modelBuildings[key]);
             }
         });
     }
-    
+
     var genericResourceButton = document.getElementById('genericResourceButton');
     genericResourceButton.addEventListener('click', function() {
         if (is_host) {
@@ -368,13 +375,13 @@ function setupDynamicEventListeners() {
 }
 
 // User assigns a job to an available townsperson.
-function allocateWorker(addWorkerButton) {
+function allocateWorker(worker) {
     if (modelResource['townspeopleAvailable'] > 0) {
-        if (addWorkerButton === 'jobResourceCollector') {
+        if (worker['id'] === 'jobResourceCollector') {
             modelResource['townspeopleResourceCollector']++;
+            modelResource['townspeopleAvailable']--;
+            updateResourceVelocity();
         }
-        modelResource['townspeopleAvailable']--;
-        updateResourceVelocity();
     } else {
         // Flashing red effect to let user know they can't add more workers.
         var totalWorkersDisplay = document.getElementById('workerStatsDisplayTotalWorkers');
@@ -423,8 +430,8 @@ function updateTooltipWorkerVelocity(worker) {
 }
 
 // User takes away a job assigned to an available townsperson (creating an available townsperson).
-function deallocateWorker(removeWorkerButton) {
-    if (removeWorkerButton === 'jobResourceCollector' && modelResource['townspeopleResourceCollector'] > 0) {
+function deallocateWorker(worker) {
+    if (worker['id'] === 'jobResourceCollector' && modelResource['townspeopleResourceCollector'] > 0) {
         modelResource['townspeopleResourceCollector']--;
         modelResource['townspeopleAvailable']++;
         updateResourceVelocity();
@@ -438,22 +445,20 @@ function deallocateWorker(removeWorkerButton) {
     }
 }
 
-// User buys a building
-function buyBuilding(buyBuildingButton) {
-    for (let building in modelBuildings) {
-        if (modelBuildings[building].id === buyBuildingButton && modelBuildings[building]['price']['resource'] <= modelResource['resource']) {
-            modelResource['resource'] -= modelBuildings[building]['price']['resource'];
-            modelResource['smallHousesOwned']++;
-            modelBuildings[building].price = 
-                determineCurrentPriceBuilding(modelBuildings[building].basePrice, modelResource['smallHousesOwned']);
-            updateTooltipPrice(modelBuildings[building]);
-            socket.emit('update_tooltip_building_price', modelBuildings[building]);
-            updateMaxTownspeople();
-        }
+function buyBuilding(building) {
+    if (building['id'] === 'buildingSmallHouse' && building['price']['resource'] <= modelResource['resource']) {
+        modelResource['resource'] -= building['price']['resource'];
+        modelResource['smallHousesOwned']++;
+        building['price'] = determineCurrentPriceBuilding(building['basePrice'], modelResource['smallHousesOwned']);
+
+        updateTooltipBuyPrice(building);
+        updateTooltipSellPrice(building);
+        socket.emit('update_tooltip_building_buy_price', building);
+        updateMaxTownspeople();
     }
 }
 
-function updateTooltipPrice(building) {
+function updateTooltipBuyPrice(building) {
     var tooltip = document.getElementById(building['buyButtonId']).children[0];
     var tooltipPrice = $(tooltip).find('.tooltip-buy-price')[0];
     $(tooltipPrice).empty();
@@ -471,9 +476,50 @@ function updateTooltipPrice(building) {
     tooltipPrice.firstChild.prepend(costString);
 }
 
+function updateTooltipSellPrice(building) {
+    var tooltip = document.getElementById(building['sellButtonId']).children[0];
+    var tooltipSellPrice = $(tooltip).find('.tooltip-sell-price')[0];
+    $(tooltipSellPrice).empty();
+    
+    for (let resourceType in building['price']) {
+        var sellpriceDiv = document.createElement('div');
+        sellpriceDiv.classList = 'tooltip-sell-price-component';
+        sellpriceDiv.innerText = formatNumberToSignificantValue((building['price'][resourceType] / 1.15) * .75) + ' ' + resourceType;
+        tooltipSellPrice.appendChild(sellpriceDiv);
+    }
+    
+    var sellpriceString = document.createElement('span');
+    sellpriceString.innerText = 'Sells for: ';
+    sellpriceString.style = 'position: absolute; left: 3%;';
+    tooltipSellPrice.firstChild.prepend(sellpriceString);
+}
+
 // Keeps track of how many townspeople you can have max.
 function updateMaxTownspeople() {
     modelResource['townspeopleMax'] = modelResource['smallHousesOwned'] * modelResourceRates['smallHouse'];
+    if (modelResource['townspeopleAlive'] > modelResource['townspeopleMax']) {
+        modelResource['townspeopleAlive'] = modelResource['townspeopleMax'];
+    }
+    if (modelResource['townspeopleAvailable'] > modelResource['townspeopleMax']) {
+        modelResource['townspeopleAvailable'] = modelResource['townspeopleMax'];
+    }
+}
+
+function sellBuilding(building) {
+    if (building['id'] === 'buildingSmallHouse') {
+        if (modelResource['smallHousesOwned'] > 0 && modelResource['townspeopleAvailable'] >= 2) {
+            modelResource['smallHousesOwned']--;
+            modelResource['townspeopleAlive'] -= 2;
+            modelResource['townspeopleAvailable'] -= 2;
+            building['price'] = determineCurrentPriceBuilding(building['basePrice'], modelResource['smallHousesOwned']);
+            modelResource['resource'] += (building['price']['resource'])*.75;
+            
+            updateTooltipBuyPrice(building)
+            updateTooltipSellPrice(building);
+            socket.emit('update_tooltip_building_sell_price', building);
+            updateMaxTownspeople();
+        }
+    }
 }
 
 // Functionality: Iterates the generic 'resource' resource by 1.
@@ -624,9 +670,7 @@ function updateSelectedView(divBeingSelected) {
         document.getElementsByClassName('selected')[0].classList.remove('selected');
         divBeingSelected.classList.add('selected');
     }
-    
-    /* We iterate over the array in this way since we cannot refer
-        to the individual indexes by number (it's a dictionary of sorts). */
+
     for (let viewObject in modelViews) {
         if (modelViews[viewObject].navButton === divBeingSelected) {
             modelViews[viewObject].view.style = 'display: block;';
@@ -709,8 +753,11 @@ function setupServerEmitListeners() {
     socket.on('server_says_buy_building', function(data) {
         buyBuilding(data);
     });
-    socket.on('update_tooltip_building_price_server', function(data) {
-        updateTooltipPrice(data); 
+    socket.on('server_says_sell_building', function(data) {
+        sellBuilding(data);
+    });
+    socket.on('update_tooltip_building_buy_price_server', function(data) {
+        updateTooltipBuyPrice(data); 
     });
     socket.on('server_says_generate_resource', function() {
         generateResource();
@@ -806,7 +853,8 @@ function updateWithDataFromServer(data) {
             basePrice: {'resource': 50},
             resourceType: ['resource'],
             price: determineCurrentPriceBuilding({'resource': 50}, modelResource['smallHousesOwned']),
-            buyButtonId: 'buildingSmallHouseBuyButton'
+            buyButtonId: 'buildingSmallHouseBuyButton',
+            sellButtonId: 'buildingSmallHouseSellButton'
         };
 }
 

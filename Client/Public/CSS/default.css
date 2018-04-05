@@ -31,6 +31,18 @@ body, html {
     -webkit-user-select: none;
 }
 
+.full-width {
+    width: 100%;
+}
+
+.hide {
+    display: none;
+}
+
+.display-block {
+    display: block;
+}
+
 /* Main Navbar and inner stylings */
 .page-navbar-container {
     height: 30px;
@@ -189,10 +201,6 @@ body, html {
 
 .add-worker:hover, .buy-building:hover {
     background-color: #5b5;
-}
-
-.buy-building {
-    width: 100%;
 }
 
 .remove-worker, .sell-building {

@@ -101,8 +101,14 @@ io.on('connection', function(socket){
     socket.on('buy_building', (data) => {
         io.to(current_host_user[current_room].id).emit('server_says_buy_building', data);
     });
-    socket.on('update_tooltip_building_price', (data) => {
-        socket.to(current_room).broadcast.emit('update_tooltip_building_price_server', data); 
+    socket.on('update_tooltip_building_buy_price', (data) => {
+        socket.to(current_room).broadcast.emit('update_tooltip_building_buy_price_server', data); 
+    });
+    socket.on('sell_building', (data) => {
+        io.to(current_host_user[current_room].id).emit('server_says_sell_building', data); 
+    });
+    socket.on('update_tooltip_building_sell_price', (data) => {
+        socket.to(current_room).broadcast.emit('update_tooltip_building_sell_price_server', data); 
     });
     socket.on('generate_resource', (data) => {
         io.to(current_host_user[current_room].id).emit('server_says_generate_resource');
