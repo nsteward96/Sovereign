@@ -39,7 +39,8 @@
                  --><span id="serverButtonsContainer" style="display: none;"><!--
                      --><button class="text-button" id="resetGamePassword">Reset game password</button><span class="unselectable text-button-spacing">|</span><!--
                      --><button class="text-button" id="viewRoomOccupants">Who's in this room?</button><span class="unselectable text-button-spacing">|</span><!--
-                 --></span>
+                 --></span><!--
+                 --><button class="text-button danger-text reset-game-button" id="resetGameButton">Reset progress</button>
                 </div>
             </div>
             <div class="row game-area">
@@ -132,6 +133,16 @@
                             <div class="view-room-occupants-occupants" id="viewRoomOccupantsOccupants"></div>
                         </div>
                         <button class="view-room-occupants-close" id="viewRoomOccupantsClose">Close</button>
+                    </div>
+                    <div class="col-sm-12 reset-game-confirmation-container" id="resetGameConfirmationContainer">
+                        <div class="reset-game-confirmation-message" id="resetGameConfirmationMessage">
+                            If you continue, all of your progress will be deleted. You will start from square one.
+                            <br /><br />
+                            Are you sure you want to burn it all down?
+                            <br /><br />
+                        </div>
+                        <button class="reset-game-confirmation-button" id="resetGameConfirmationButton">Yes, delete my progress</button>
+                        <button class="reset-game-confirmation-cancel" id="resetGameConfirmationCancel">Cancel</button>
                     </div>
                 </div>
                 <div class="row col-sm-12 cookieLawContainer" id="cookieLawWarning">

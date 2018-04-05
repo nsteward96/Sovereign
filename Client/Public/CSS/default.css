@@ -43,6 +43,10 @@ body, html {
     display: block;
 }
 
+.danger-text {
+    color: #AA0000;
+}
+
 /* Main Navbar and inner stylings */
 .page-navbar-container {
     height: 30px;
@@ -51,6 +55,7 @@ body, html {
 
 .page-navbar {
     height: 100%;
+    width: 100%;
 }
 
 .text-button {
@@ -354,6 +359,28 @@ body, html {
 
 .username-titles {
     min-width: 250px;
+}
+
+/* Reset Game Stylings */
+.reset-game-button {
+    float: right;
+}
+
+.reset-game-confirmation-container {
+    padding: 0 25%;
+    top: 30%;
+}
+
+.reset-game-confirmation-message {
+    color: white;
+    font-family: 'Fondamento', cursive;
+    font-size: 20px;
+}
+
+.reset-game-confirmation-container > button {
+    cursor: pointer;
+    font-family: 'Fondamento', cursive;
+    font-size: 20px;
 }
 
 /* Cookie Law Banner Stylings */
