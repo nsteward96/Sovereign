@@ -539,7 +539,7 @@ function sellBuilding(building) {
             building['price'] = determineCurrentPriceBuilding(building['basePrice'], modelResource['smallHousesOwned']);
             modelResource['resource'] += (building['price']['resource'])*.75;
             
-            updateTooltipBuyPrice(building)
+            updateTooltipBuyPrice(building);
             updateTooltipSellPrice(building);
             socket.emit('update_tooltip_building_sell_price', building);
             updateMaxTownspeople();
@@ -1059,6 +1059,6 @@ function updateResourceValues() {
 // Update the actual values of resources.
 function calculateResourceValuePerTick() {
     //Ticks are 10 times a second, or every .1s, thus the magic number .1.
-    var allocatedresources = modelJobs['resourceCollector']['velocity']['resource']*.1
+    var allocatedresources = modelJobs['resourceCollector']['velocity']['resource']*.1;
     modelResource['resource'] += allocatedresources;
 }

@@ -43,10 +43,6 @@ body, html {
     display: block;
 }
 
-.darken {
-    filter: .7;
-}
-
 .danger-text {
     color: #AA0000;
 }
