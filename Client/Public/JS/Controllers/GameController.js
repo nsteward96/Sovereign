@@ -593,7 +593,6 @@ function showServerButtons() {
 }
 
 function hideOverlay() {
-    console.log('hidin that shit');
     document.getElementById('overlayContainer').style = 'display; none;';
 }
 
