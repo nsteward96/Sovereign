@@ -285,10 +285,7 @@ function outputToFlavorTextArea(text) {
         messageContent.removeEventListener('mouseover', removeHighlight);
     });
     
-    var messageBorderBottom = document.createElement('div');
-    messageBorderBottom.classList = 'flavor-text-area-message-border-bottom';
     message.appendChild(messageContent);
-    message.appendChild(messageBorderBottom);
     $(flavorTextArea).prepend(message);
     var messageJustAppended = flavorTextArea.childNodes[0];
     $(messageJustAppended).fadeIn(350);
@@ -363,6 +360,7 @@ function setupDynamicEventListeners() {
             joinGameSession(game_password);
             hideOverlay();
         } else {
+            outputErrorMessageToErrorDisplay('You are already in that server!', 'red');
             console.log('You are already in that server!');
         }
     });
@@ -375,6 +373,7 @@ function setupDynamicEventListeners() {
             is_in_a_server = false;
             game_password = '';
         } else {
+            outputErrorMessageToErrorDisplay('You don\'t have a password set!', 'red');
             console.log('You don\'t have a password set!');   
         }
     });
@@ -383,6 +382,7 @@ function setupDynamicEventListeners() {
     resetGameButton.addEventListener('click', function() {
         if (is_in_a_server) {
             console.log('Please leave the game server if you wish to reset your game.');
+            outputErrorMessageToErrorDisplay('Please leave the game server if you wish to reset your game.', 'orange');
         } else {
             revealOverlay('resetGameConfirmationContainer');
         }
@@ -391,6 +391,7 @@ function setupDynamicEventListeners() {
     var resetGameConfirmationButton = document.getElementById('resetGameConfirmationButton');
     resetGameConfirmationButton.addEventListener('click', function() {
         if (is_in_a_server) {
+            outputErrorMessageToErrorDisplay('Please leave the game server if you wish to reset your game.', 'orange');
             console.log('Please leave the game server if you wish to reset your game.');
         } else {
             eraseGameProgress();
@@ -592,7 +593,35 @@ function showServerButtons() {
 }
 
 function hideOverlay() {
+    console.log('hidin that shit');
     document.getElementById('overlayContainer').style = 'display; none;';
+}
+
+function outputErrorMessageToErrorDisplay(error, warningColor) {
+    var errorDisplayDiv = document.getElementById('pageNavbarErrorDisplay');
+    if (errorDisplayDiv.innerText !== error) {
+        errorDisplayDiv.innerText = error;
+        
+        var color1 = '#AAAAAA';
+        var color2 = '#555555';
+        if (warningColor === 'red') {
+            color1 = '#FF0000';
+            color2 = '#880000';
+        } else if (warningColor === 'orange') {
+            color1 = '#CC5500';
+            color2 = '#660000';
+        }
+        $(errorDisplayDiv).css({color: color1});
+
+        $(errorDisplayDiv).fadeIn(500);
+        for (let i = 0; i < 6; i++) {
+            $(errorDisplayDiv).animate({color: i % 2 === 0 ? color2 : color1}, 500);
+        }
+        $(errorDisplayDiv).fadeOut(500, function() {
+            errorDisplayDiv.innerText = '';
+        });
+
+    }
 }
 
 // Leaves a game room after the user disconnects.
@@ -629,7 +658,39 @@ function eraseGameProgress() {
     localStorage.removeItem('modelResourceRates');
     localStorage.removeItem('username');
     randomizeSelectedTitle();
-    initModels();
+    var blackout = function() {
+        var options1 = {
+            duration: 750,
+            easing: 'linear',
+            step: function() {
+                $('body').css({
+                    '-webkit-filter': 'brightness('+this.brightness+'%)',
+                    'filter': 'brightness('+this.brightness+'%)'
+                });
+            },
+            complete: function(){
+                hideOverlay();
+                emptyFlavorTextArea();
+                printIntroductoryMessage();
+                initModels();
+            }
+        };
+        var options2 = {
+            duration: 1250,
+            easing: 'linear',
+            step: function() {
+                $('body').css({
+                    '-webkit-filter': 'brightness('+this.brightness+'%)',
+                    'filter': 'brightness('+this.brightness+'%)'
+                });
+            },
+            complete: function() {
+                $('body').css({'filter': 'brightness(100%);'});
+            }
+        };
+        $({brightness: 100}).animate({brightness: 0}, options1).animate({brightness: 100}, options2);
+    };
+    blackout();
 }
 
 // Event listeners that are static - they operate independently of the user's
