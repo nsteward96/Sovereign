@@ -65,6 +65,16 @@ body, html {
     text-decoration: underline;
 }
 
+.page-navbar-error-display {
+    color: #FF0000;
+    display: none;
+    float: right;
+    margin: 0px 20px;
+    padding: 1px 0px;
+    position: relative;
+    z-index: 20000;
+}
+
 .unselectable.text-button-spacing {
     margin: 0px 7.5px;
 }
@@ -112,18 +122,34 @@ body, html {
 }
 
 .flavor-text-area-message {
+    border-top: 1px solid #705858;
+    border-bottom: 1px solid #705858;
     color: white;
     display: none;
 }
 
-.flavor-text-area-message-new {
-    background-color: #A17979;
+.flavor-text-area-message > p {
+    margin: 7.5px 0px;
 }
 
-.flavor-text-area-message-border-bottom {
-    width: 55%;
-    border-bottom: 1.5px solid #705858;
-    margin: auto;
+.flavor-text-area-message:first-child > p {
+    margin-top: 0;
+}
+
+.flavor-text-area-message:last-child > p {
+    margin-bottom: 0;
+}
+
+.flavor-text-area-message:first-child {
+    border-top: 0;
+}
+
+.flavor-text-area-message:last-child {
+    border-bottom: 0;
+}
+
+.flavor-text-area-message-new {
+    background-color: #A17979;
 }
 
 /* Main Display and inner stylings */
