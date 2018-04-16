@@ -68,6 +68,7 @@
                         <!-- Tabs that manipulate the Main Display go here -->
                         <button class="btn btn-sm selected" id="resourceGenerationNavButton">The Wilds</button><!--
                      --><button class="btn btn-sm" id="manageTownNavButton">Settlement</button><!--
+                     --><button class="btn btn-sm" id="manageUpgradesNavButton">Upgrades</button><!--
                      --><button class="btn btn-sm" id="manageJobsNavButton">Jobs</button>
                     </div>
                     <div class="col-sm-12 main-display">
@@ -83,6 +84,16 @@
                                 </div>
                                 <div class="buy-building" id="buildingSmallHouseBuyButton">Buy</div>
                                 <div class="sell-building" id="buildingSmallHouseSellButton">Sell</div>
+                            </div>
+                        </div>
+                        <div class="view manage-upgrades-view" id="manageUpgradesView" style="display: none;">
+                            <div class="upgrade-container" id="upgradeSmallHouse">
+                                <div class="upgrade-container-title" id="upgradeContainerTitleSmallHouse">Housing</div>
+                                <div class="upgrade-list-box" id="upgradeListBoxSmallHouse"></div>
+                            </div>
+                            <div class="upgrade-container" id="upgradeResourceCollector">
+                                <div class="upgrade-container-title" id="upgradeContainerTitleResourceCollector">Resource Collector</div>
+                                <div class="upgrade-list-box" id="upgradeListBoxResourceCollector"></div>
                             </div>
                         </div>
                         <div class="view manage-jobs-view" id="manageJobsView" style="display: none;">
