@@ -8,6 +8,7 @@ var modelResourceRates = {};
 var modelViews = {};
 var modelJobs = {};
 var modelBuildings = {};
+var modelUpgrades = {};
 var socket;
 var username = 'New User';
 var game_password = '';
@@ -50,7 +51,7 @@ function initModels() {
     var storedResourceData = JSON.parse(localStorage.getItem('modelResource'));
     var storedUsername = JSON.parse(localStorage.getItem('username'));
     var storedResourceRatesData = JSON.parse(localStorage.getItem('modelResourceRates'));
-    
+
     // Replace default values with saved resource values.
     if (storedResourceData !== null) {
         modelResource['resource'] = storedResourceData['resource'];
@@ -68,6 +69,7 @@ function initModels() {
     }
     if (storedResourceRatesData !== null) {
         modelResourceRates['resourceCollector'] = storedResourceRatesData['resourceCollector'];
+        modelResourceRates['smallHouse'] = storedResourceRatesData['smallHouse'];
     }
     
     // Init the views model.
@@ -80,6 +82,11 @@ function initModels() {
         {
             view: document.getElementById('manageTownView'),
             navButton: document.getElementById('manageTownNavButton')
+        };
+    modelViews['upgradesView'] = 
+        {
+            view: document.getElementById('manageUpgradesView'),
+            navButton: document.getElementById('manageUpgradesNavButton')
         };
     modelViews['jobsView'] =
         {
@@ -98,16 +105,86 @@ function initModels() {
     // Init the buildings model.
     modelBuildings['smallHouse'] = 
         {
-            id: document.getElementById('buildingSmallHouse').id,
+            id: 'buildingSmallHouse',
             basePrice: {'resource': 50},
             resourceType: ['resource'],
             price: determineCurrentPriceBuilding({'resource': 50}, modelResource['smallHousesOwned']),
             buyButtonId: 'buildingSmallHouseBuyButton',
             sellButtonId: 'buildingSmallHouseSellButton'
         };
+        
+    initModelUpgrades();
     
-    // Create the tooltips.
     createTooltips();
+}
+
+// Init the upgrades model.
+function initModelUpgrades(data) {
+    data = data || false;
+    destroyUpgrades();
+    
+    var createUpgrade = function(elementToAppendTo, className, id) {
+        var element = document.createElement('div');
+        element.className = className;
+        element.id = id;
+        elementToAppendTo.appendChild(element);
+    };
+    
+    var storedModelUpgrades = null;
+    if (is_host) {
+        storedModelUpgrades = JSON.parse(localStorage.getItem('modelUpgrades'));
+    } else if (data !== false) {
+        storedModelUpgrades = data;
+    }
+
+    if (storedModelUpgrades !== null) {
+        modelUpgrades['smallHouse'] = storedModelUpgrades['smallHouse'];
+        modelUpgrades['resourceCollector'] = storedModelUpgrades['resourceCollector'];
+    } else {
+        modelUpgrades['smallHouse'] =
+            {
+                reinforcedHousing:
+                    {
+                        containerId: 'upgradeSmallHouse',
+                        titleId: 'upgradeContainerTitleSmallHouse',
+                        parentId: 'upgradeListBoxSmallHouse',
+                        buyButtonId: 'upgradeDisplayBoxReinforcedHousing',
+                        price: {'resource': 200},
+                        purchased: false
+                    }
+            };
+        modelUpgrades['resourceCollector'] = 
+            {
+                agriculturalEducation:
+                    {
+                        containerId: 'upgradeResourceCollector',
+                        titleId: 'upgradeContainerTitleResourceCollector',
+                        parentId: 'upgradeListBoxResourceCollector',
+                        buyButtonId: 'upgradeDisplayBoxAgriculturalEducation',
+                        price: {'resource': 500},
+                        purchased: false
+                    }
+            };
+    }
+    for (let modelCategory in modelUpgrades) {
+        for (let model in modelUpgrades[modelCategory]) {
+            if (modelUpgrades[modelCategory][model]['purchased']) {
+                removeUpgrade(modelUpgrades[modelCategory][model]);
+            } else {
+                var elementParent = document.getElementById(modelUpgrades[modelCategory][model]['parentId']);
+                createUpgrade(elementParent, 'upgrade-display-box', modelUpgrades[modelCategory][model]['buyButtonId']);
+                document.getElementById(modelUpgrades[modelCategory][model]['titleId']).style = 'display: block;';
+            }
+        }
+    }
+    
+    setupUpgradeEventListeners();
+}
+
+// Gets rid of all upgrade elements in each category.
+function destroyUpgrades() {
+    $('.upgrade-display-box').remove();
+    $('.upgrade-container-title').hide();
 }
 
 function revealOverlay(id) {
@@ -148,8 +225,8 @@ function createTooltips() {
         var hashOptions = {
             'title': 'Small shack',
             'description': 'A humble shelter for the weary. It is small and cramped, but it\'s better than the Wilds.',
-            'buyprice': price,
-            'effects': 'Adds room for 2 new townspeople.'
+            'effects': '<div class="tooltip-effects">Provides a space for <span id="smallHouseBuyTooltipEffects">'+modelResourceRates['smallHouse']+'</span> townspeople to live in.</div>',
+            'buyprice': price
         };
         document.getElementById(modelBuildings['smallHouse']['buyButtonId']).appendChild(TooltipBuilder(hashOptions));
     };
@@ -161,25 +238,58 @@ function createTooltips() {
         var hashOptions = {
             'title': 'Small shack',
             'description': 'A humble shelter for the weary. It is small and cramped, but it\'s better than the Wilds.',
-            'sellprice': sellprice,
-            'effects': 'Sell a shack. Must have 2 available (unemployed) townspeople in order to sell.'
+            'effects': '<div class="tooltip-effects">Sell a shack. Must have <span id="smallHouseSellTooltipEffects">'+modelResourceRates['smallHouse']+'</span> available (unemployed) townspeople in order to sell.</div>',
+            'sellprice': sellprice
         };
         document.getElementById(modelBuildings['smallHouse']['sellButtonId']).appendChild(TooltipBuilder(hashOptions));
     };
-    var createResourceCollectorTooltip = function() {
+    var createResourceCollectorAllocateTooltip = function() {
         var hashOptions = {
             'title': 'Resource collector',
             'description': 'More resources for the lord!',
-            'effects': 'Each worker gives .5 resources a second',
+            'effects': '<div class="tooltip-effects">Each worker gives <span id="resourceCollectorAllocateTooltipEffects">'+modelResourceRates['resourceCollector']+'</span> resources a second</div>',
             'workervelocity': modelJobs['resourceCollector']['velocity']
         };
         document.getElementById(modelJobs['resourceCollector']['allocateButtonId']).appendChild(TooltipBuilder(hashOptions));
+    };
+    var createResourceCollectorDeallocateTooltip = function() {
+        var hashOptions = {
+            'title': 'Resource collector',
+            'description': 'More resources for the lord!',
+            'effects': '<div class="tooltip-effects">Each worker gives <span id="resourceCollectorDeallocateTooltipEffects">'+modelResourceRates['resourceCollector']+'</span> resources a second</div>',
+            'workervelocity': modelJobs['resourceCollector']['velocity']
+        };
         document.getElementById(modelJobs['resourceCollector']['deallocateButtonId']).appendChild(TooltipBuilder(hashOptions));
     };
+    if (document.getElementById(modelUpgrades['resourceCollector']['agriculturalEducation']['buyButtonId']) !== null) {
+        var createUpgradeAgriculturalEducationTooltip = function() {
+            var hashOptions = {
+                'title': 'Agricultural Education',
+                'description': 'Give your settlers a few tips on effective farming methods.',
+                'effects': '<div class="tooltip-effects">Increases gather rate by 0.5 resources per second.</div>',
+                'buyprice': modelUpgrades['resourceCollector']['agriculturalEducation']['price']
+            };
+            document.getElementById(modelUpgrades['resourceCollector']['agriculturalEducation']['buyButtonId']).appendChild(TooltipBuilder(hashOptions));
+        };
+        createUpgradeAgriculturalEducationTooltip();
+    }
+    if (document.getElementById(modelUpgrades['smallHouse']['reinforcedHousing']['buyButtonId']) !== null) {
+        var createUpgradeReinforcedHousingTooltip = function() {
+            var hashOptions = {
+                'title': 'Reinforced Housing',
+                'description': 'Improves the structural integrity of your shacks. Also, conveniently adds just enough room for another resident!',
+                'effects': '<div class="tooltip-effects">Adds +1 max townspeople per Small Shack</div>',
+                'buyprice': modelUpgrades['smallHouse']['reinforcedHousing']['price']
+            };
+            document.getElementById(modelUpgrades['smallHouse']['reinforcedHousing']['buyButtonId']).appendChild(TooltipBuilder(hashOptions));
+        };
+        createUpgradeReinforcedHousingTooltip();
+    }
 
     createSmallHouseBuyButtonTooltip();
     createSmallHouseSellButtonTooltip();
-    createResourceCollectorTooltip();
+    createResourceCollectorAllocateTooltip();
+    createResourceCollectorDeallocateTooltip();
     
     setupTooltipEventListeners();
 }
@@ -281,7 +391,7 @@ function outputToFlavorTextArea(text) {
     // User can enable/disable this feature in options in a future update.
     $(messageContent).addClass('flavor-text-area-message-new');
     messageContent.addEventListener('mouseover', function removeHighlight() {
-        $(messageContent).removeClass('flavor-text-area-message-new');
+        $(messageContent).switchClass('flavor-text-area-message-new', 'flavor-text-area-message-old', 200);
         messageContent.removeEventListener('mouseover', removeHighlight);
     });
     
@@ -381,8 +491,8 @@ function setupDynamicEventListeners() {
     var resetGameButton = document.getElementById('resetGameButton');
     resetGameButton.addEventListener('click', function() {
         if (is_in_a_server) {
-            console.log('Please leave the game server if you wish to reset your game.');
             outputErrorMessageToErrorDisplay('Please leave the game server if you wish to reset your game.', 'orange');
+            console.log('Please leave the game server if you wish to reset your game.');
         } else {
             revealOverlay('resetGameConfirmationContainer');
         }
@@ -449,7 +559,7 @@ function updateTooltipWorkerVelocity(worker) {
         }
         var velocityString = document.createElement('span');
         velocityString.innerText = 'Total per second: ';
-        velocityString.style = 'position: absolute; left: 3%;';
+        velocityString.style = 'position: absolute; left: 7.5px;';
         tooltipVelocities[i].firstChild.prepend(velocityString);
     }
 }
@@ -479,6 +589,7 @@ function buyBuilding(building) {
         updateTooltipBuyPrice(building);
         updateTooltipSellPrice(building);
         socket.emit('update_tooltip_building_buy_price', building);
+        socket.emit('update_tooltip_building_sell_price', building);
         updateMaxTownspeople();
     }
 }
@@ -497,7 +608,7 @@ function updateTooltipBuyPrice(building) {
     
     var costString = document.createElement('span');
     costString.innerText = 'Cost: ';
-    costString.style = 'position: absolute; left: 3%;';
+    costString.style = 'position: absolute; left: 7.5px;';
     tooltipPrice.firstChild.prepend(costString);
 }
 
@@ -515,8 +626,13 @@ function updateTooltipSellPrice(building) {
     
     var sellpriceString = document.createElement('span');
     sellpriceString.innerText = 'Sells for: ';
-    sellpriceString.style = 'position: absolute; left: 3%;';
+    sellpriceString.style = 'position: absolute; left: 7.5px;';
     tooltipSellPrice.firstChild.prepend(sellpriceString);
+}
+
+function updateTooltipEffects(spanId, newEffectsText) {
+    var tooltipEffectsSubsection = document.getElementById(spanId);
+    tooltipEffectsSubsection.innerText = newEffectsText;
 }
 
 // Keeps track of how many townspeople you can have max.
@@ -532,15 +648,16 @@ function updateMaxTownspeople() {
 
 function sellBuilding(building) {
     if (building['id'] === 'buildingSmallHouse') {
-        if (modelResource['smallHousesOwned'] > 0 && modelResource['townspeopleAvailable'] >= 2) {
+        if (modelResource['smallHousesOwned'] > 0 && modelResource['townspeopleAvailable'] >= modelResourceRates['smallHouse']) {
             modelResource['smallHousesOwned']--;
-            modelResource['townspeopleAlive'] -= 2;
-            modelResource['townspeopleAvailable'] -= 2;
+            modelResource['townspeopleAlive'] -= modelResourceRates['smallHouse'];
+            modelResource['townspeopleAvailable'] -= modelResourceRates['smallHouse'];
             building['price'] = determineCurrentPriceBuilding(building['basePrice'], modelResource['smallHousesOwned']);
             modelResource['resource'] += (building['price']['resource'])*.75;
             
             updateTooltipBuyPrice(building);
             updateTooltipSellPrice(building);
+            socket.emit('update_tooltip_building_buy_price', building);
             socket.emit('update_tooltip_building_sell_price', building);
             updateMaxTownspeople();
         }
@@ -583,6 +700,7 @@ function joinGameSession(game_password) {
     socket.emit('namespace_change', { room: game_password, player_name: username });
     window.setTimeout(function() {
         socket.emit('update_current_room_name');
+        initModelUpgrades(modelUpgrades);
         createTooltips();
     }, 250);
 }
@@ -596,19 +714,19 @@ function hideOverlay() {
     document.getElementById('overlayContainer').style = 'display; none;';
 }
 
-function outputErrorMessageToErrorDisplay(error, warningColor) {
+function outputErrorMessageToErrorDisplay(error, effect) {
     var errorDisplayDiv = document.getElementById('pageNavbarErrorDisplay');
     if (errorDisplayDiv.innerText !== error) {
         errorDisplayDiv.innerText = error;
         
         var color1 = '#AAAAAA';
         var color2 = '#555555';
-        if (warningColor === 'red') {
+        if (effect === 'red') {
             color1 = '#FF0000';
             color2 = '#880000';
-        } else if (warningColor === 'orange') {
+        } else if (effect === 'orange') {
             color1 = '#CC5500';
-            color2 = '#660000';
+            color2 = '#883300';
         }
         $(errorDisplayDiv).css({color: color1});
 
@@ -629,6 +747,7 @@ function leaveGameSession() {
     if (is_host && is_in_a_server) {
         localStorage.setItem('modelResource', JSON.stringify(modelResource));
         localStorage.setItem('modelResourceRates', JSON.stringify(modelResourceRates));
+        localStorage.setItem('modelUpgrades', JSON.stringify(modelUpgrades));
     }
     window.setTimeout(function() {
         if (!(is_host)) {
@@ -655,6 +774,7 @@ function hideServerButtons() {
 function eraseGameProgress() {
     localStorage.removeItem('modelResource');
     localStorage.removeItem('modelResourceRates');
+    localStorage.removeItem('modelUpgrades');
     localStorage.removeItem('username');
     randomizeSelectedTitle();
     var blackout = function() {
@@ -672,6 +792,7 @@ function eraseGameProgress() {
                 emptyFlavorTextArea();
                 printIntroductoryMessage();
                 initModels();
+                setupUpgradeEventListeners();
             }
         };
         var options2 = {
@@ -692,6 +813,66 @@ function eraseGameProgress() {
     blackout();
 }
 
+function setupUpgradeEventListeners() {
+    if (document.getElementById(modelUpgrades['smallHouse']['reinforcedHousing']['buyButtonId']) !== null) {
+        var upgradeReinforcedHousingButton = document.getElementById(modelUpgrades['smallHouse']['reinforcedHousing']['buyButtonId']);
+        upgradeReinforcedHousingButton.addEventListener('click', function(){ buyUpgrade(modelUpgrades['smallHouse']['reinforcedHousing']); });
+    }
+    
+    if (document.getElementById(modelUpgrades['resourceCollector']['agriculturalEducation']['buyButtonId']) !== null) {
+        var upgradeAgriculturalEducationButton = document.getElementById(modelUpgrades['resourceCollector']['agriculturalEducation']['buyButtonId']);
+        upgradeAgriculturalEducationButton.addEventListener('click', function(){ buyUpgrade(modelUpgrades['resourceCollector']['agriculturalEducation']); });
+    }
+}
+
+function buyUpgrade(upgrade) {
+    if (is_host) {
+        if (modelResource['resource'] >= upgrade['price']['resource'] && upgrade['purchased'] !== true) {
+            modelResource['resource'] -= upgrade['price']['resource'];
+            applyUpgradeEffect(upgrade);
+            socket.emit('remove_upgrade_from_list', upgrade);
+        }
+    } else {
+        socket.emit('buy_upgrade', upgrade);
+    }
+}
+
+function applyUpgradeEffect(upgrade) {
+    if (upgrade['buyButtonId'] === 'upgradeDisplayBoxAgriculturalEducation') {
+        modelResourceRates['resourceCollector'] += 0.5;
+        updateResourceVelocity();
+        modelUpgrades['resourceCollector']['agriculturalEducation']['purchased'] = true;
+    } else if (upgrade['buyButtonId'] === 'upgradeDisplayBoxReinforcedHousing') {
+        modelResourceRates['smallHouse'] += 1;
+        updateMaxTownspeople();
+        modelUpgrades['smallHouse']['reinforcedHousing']['purchased'] = true;
+    }
+    updateTooltipsAfterUpgrade();
+    if (is_host && is_in_a_server) {
+        socket.emit('update_tooltips_after_upgrade');
+    }
+    removeUpgrade(upgrade);
+}
+
+function updateTooltipsAfterUpgrade() {
+    updateTooltipWorkerVelocity(modelJobs['resourceCollector']);
+    updateTooltipEffects('resourceCollectorAllocateTooltipEffects', modelResourceRates['resourceCollector']);
+    updateTooltipEffects('resourceCollectorDeallocateTooltipEffects', modelResourceRates['resourceCollector']);
+    updateTooltipEffects('smallHouseBuyTooltipEffects', modelResourceRates['smallHouse']);
+    updateTooltipEffects('smallHouseSellTooltipEffects', modelResourceRates['smallHouse']);
+}
+
+function removeUpgrade(upgrade) {
+    var upgradeElement = document.getElementById(upgrade['buyButtonId']);
+    if (upgradeElement) {
+        upgradeElement.removeEventListener('click', buyUpgrade);
+        upgradeElement.style = 'display: none;';
+        if (upgradeElement.parentElement.offsetHeight === 0) {
+            document.getElementById(upgrade['titleId']).style = 'display: none;';
+        }
+    }
+}
+
 // Event listeners that are static - they operate independently of the user's
 // presence in a server.
 function setupStaticEventListeners() {
@@ -700,6 +881,7 @@ function setupStaticEventListeners() {
         [
             document.getElementById('resourceGenerationNavButton'),
             document.getElementById('manageTownNavButton'),
+            document.getElementById('manageUpgradesNavButton'),
             document.getElementById('manageJobsNavButton')
         ];
     for (let i = 0; i < gameNavButtonArray.length; i++) {
@@ -793,7 +975,8 @@ function setUsername() {
         overlayContainer.style = 'display: none;';
         localStorage.setItem('username', JSON.stringify(username));
     } else {
-        console.log('That username doesn\'t follow the rules! Try another.');
+        outputErrorMessageToErrorDisplay('That username is too short.', 'orange');
+        console.log('That username is too short.');
     }
 }
 
@@ -855,8 +1038,23 @@ function setupServerEmitListeners() {
     socket.on('server_says_sell_building', function(data) {
         sellBuilding(data);
     });
+    socket.on('server_says_buy_upgrade', function(data) {
+        buyUpgrade(data);
+    });
+    socket.on('server_says_remove_upgrade_from_list', function(data) {
+        removeUpgrade(data); 
+    });
+    socket.on('server_says_update_tooltips_after_upgrade', function() {
+        window.setTimeout(function() {
+            updateTooltipsAfterUpgrade();
+        }, 250);
+        
+    });
     socket.on('update_tooltip_building_buy_price_server', function(data) {
         updateTooltipBuyPrice(data); 
+    });
+    socket.on('update_tooltip_building_sell_price_server', function(data) {
+        updateTooltipSellPrice(data);
     });
     socket.on('server_says_generate_resource', function() {
         generateResource();
@@ -904,7 +1102,8 @@ function setupServerEmitListeners() {
 function updateWithDataFromServer(data) {
     var playerResourceData = data.resource_data;
     var playerResourceRatesData = data.resource_rates_data;
-    // Replace default resource values with saved resource values.
+    var playerModelUpgrades = data.upgrade_model;
+    // Replace default resource values with host player's resource values.
     if (playerResourceData !== null) {
         modelResource['resource'] = playerResourceData['resource'];
         modelResource['townspeopleAvailable'] = playerResourceData['townspeopleAvailable'];
@@ -913,9 +1112,15 @@ function updateWithDataFromServer(data) {
         modelResource['townspeopleResourceCollector'] = playerResourceData['townspeopleResourceCollector'];
         modelResource['smallHousesOwned'] = playerResourceData['smallHousesOwned'];
     }
-    // Replace default resource rate values with resource rate values.
+    // Replace default resource rate values with host player's resource rate values.
     if (playerResourceRatesData !== null) {
         modelResourceRates['resourceCollector'] = playerResourceRatesData['resourceCollector'];
+        modelResourceRates['smallHouse'] = playerResourceRatesData['smallHouse'];
+    }
+    // Replace default upgrade data with host player's upgrade models.
+    if (playerModelUpgrades) {
+        modelUpgrades['smallHouse'] = playerModelUpgrades['smallHouse'];
+        modelUpgrades['resourceCollector'] = playerModelUpgrades['resourceCollector'];
     }
     // Init all resource generation velocities (current rate for the user)
     modelJobs['resourceCollector']['velocity'] = 
@@ -948,7 +1153,7 @@ function updateWithDataFromServer(data) {
     // Init the buildings model.
     modelBuildings['smallHouse'] = 
         {
-            id: document.getElementById('buildingSmallHouse').id,
+            id: 'buildingSmallHouse',
             basePrice: {'resource': 50},
             resourceType: ['resource'],
             price: determineCurrentPriceBuilding({'resource': 50}, modelResource['smallHousesOwned']),
@@ -963,6 +1168,7 @@ function autosaveTimer() {
     if (is_host) {
         localStorage.setItem('modelResource', JSON.stringify(modelResource));
         localStorage.setItem('modelResourceRates', JSON.stringify(modelResourceRates));
+        localStorage.setItem('modelUpgrades', JSON.stringify(modelUpgrades));
     }
     window.setTimeout(autosaveTimer, 15000);
 }
@@ -1048,7 +1254,7 @@ function updateResourceValues() {
     document.getElementById('numOwnedSmallHouses').innerText = modelResource['smallHousesOwned'];
     
     if (is_host && is_in_a_server) {
-        var data = { resource_data: modelResource, resource_rates_data: modelResourceRates };
+        var data = { resource_data: modelResource, resource_rates_data: modelResourceRates, upgrade_model: modelUpgrades };
         socket.emit('data_update', data);
     }
     

@@ -29,10 +29,10 @@ function TooltipBuilder(params) {
     };
     var buildTooltipEffects = function(effects) {
         if (effects !== undefined) {
-            var effectsDiv = document.createElement('div');
-            effectsDiv.classList = 'tooltip-effects';
-            effectsDiv.innerText = effects;
-            return effectsDiv;
+            var effectsDiv = document.createElement('template');
+            effectsDiv.innerHTML = effects;
+            effectsDiv.content.classList = 'tooltip-effects';
+            return effectsDiv.content;
         }
         return null;
     };
@@ -49,7 +49,7 @@ function TooltipBuilder(params) {
             
             var velocityString = document.createElement('span');
             velocityString.innerText = 'Total per second: ';
-            velocityString.style = 'position: absolute; left: 3%;';
+            velocityString.style = 'position: absolute; left: 7.5px;';
             workervelocityDiv.firstChild.prepend(velocityString);
             
             return workervelocityDiv;
@@ -69,7 +69,7 @@ function TooltipBuilder(params) {
             
             var costString = document.createElement('span');
             costString.innerText = 'Cost: ';
-            costString.style = 'position: absolute; left: 3%;';
+            costString.style = 'position: absolute; left: 7.5px;';
             buyPriceDiv.firstChild.prepend(costString);
             
             return buyPriceDiv;
@@ -90,7 +90,7 @@ function TooltipBuilder(params) {
             
             var sellpriceString = document.createElement('span');
             sellpriceString.innerText = 'Sells for: ';
-            sellpriceString.style = 'position: absolute; left: 3%;';
+            sellpriceString.style = 'position: absolute; left: 7.5px;';
             sellPriceDiv.firstChild.prepend(sellpriceString);
             
             return sellPriceDiv;

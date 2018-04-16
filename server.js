@@ -107,6 +107,15 @@ io.on('connection', function(socket){
     socket.on('sell_building', (data) => {
         io.to(current_host_user[current_room].id).emit('server_says_sell_building', data); 
     });
+    socket.on('buy_upgrade', (data) => {
+        io.to(current_host_user[current_room].id).emit('server_says_buy_upgrade', data);
+    });
+    socket.on('remove_upgrade_from_list', (data) => {
+        socket.to(current_room).broadcast.emit('server_says_remove_upgrade_from_list', data); 
+    });
+    socket.on('update_tooltips_after_upgrade', (data) => {
+        socket.to(current_room).broadcast.emit('server_says_update_tooltips_after_upgrade');
+    });
     socket.on('update_tooltip_building_sell_price', (data) => {
         socket.to(current_room).broadcast.emit('update_tooltip_building_sell_price_server', data); 
     });
