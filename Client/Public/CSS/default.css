@@ -97,9 +97,14 @@ body, html {
     border-top: 2px solid transparent;
     border-bottom: 2px solid transparent;
     color: white;
+    display: none;
     font-family: 'Fondamento', cursive;
     font-size: 20px;
     margin-right: 7.5px;
+}
+
+.game-navbar > .btn#resourceGenerationNavButton {
+    display: inline-block;
 }
 
 .game-navbar > .btn:hover {
@@ -189,6 +194,7 @@ body, html {
 .upgrade-container {
     height: auto;
     width: 100%;
+    display: none;
     margin-bottom: 10px;
 }
 
@@ -470,6 +476,7 @@ body, html {
     background: linear-gradient(#333377, #444499);
     bottom: 0px;
     color: white;
+    display: none;
     font-size: 24px;
     margin: 0;
     position: absolute;

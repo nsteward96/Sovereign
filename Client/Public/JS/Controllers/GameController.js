@@ -9,6 +9,7 @@ var modelViews = {};
 var modelJobs = {};
 var modelBuildings = {};
 var modelUpgrades = {};
+var modelGameProgress = {};
 var socket;
 var username = 'New User';
 var game_password = '';
@@ -51,6 +52,7 @@ function initModels() {
     var storedResourceData = JSON.parse(localStorage.getItem('modelResource'));
     var storedUsername = JSON.parse(localStorage.getItem('username'));
     var storedResourceRatesData = JSON.parse(localStorage.getItem('modelResourceRates'));
+    var storedGameProgressData = JSON.parse(localStorage.getItem('modelGameProgress'));
 
     // Replace default values with saved resource values.
     if (storedResourceData !== null) {
@@ -114,7 +116,8 @@ function initModels() {
         };
         
     initModelUpgrades();
-    
+    initModelGameProgress(storedGameProgressData);
+
     createTooltips();
 }
 
@@ -122,7 +125,7 @@ function initModels() {
 function initModelUpgrades(data) {
     data = data || false;
     destroyUpgrades();
-    
+
     var createUpgrade = function(elementToAppendTo, className, id) {
         var element = document.createElement('div');
         element.className = className;
@@ -185,6 +188,45 @@ function initModelUpgrades(data) {
 function destroyUpgrades() {
     $('.upgrade-display-box').remove();
     $('.upgrade-container-title').hide();
+}
+
+// Inits the player's current progress in the game, altering what they can see.
+function initModelGameProgress(gameProgress) {
+    gameProgress = gameProgress || false;
+    
+    for (let progressModel in modelGameProgress) {
+        for (let i = 0; i < modelGameProgress[progressModel].elementIds.length; i++) {
+            document.getElementById(modelGameProgress[progressModel].elementIds[i]).style = 'display: none;';
+        }
+    }
+
+    if (gameProgress) {
+        modelGameProgress = gameProgress;
+        for (let progressModel in modelGameProgress) {
+            if (modelGameProgress[progressModel].activated === true) {
+                for (let i = 0; i < modelGameProgress[progressModel].elementIds.length; i++) {
+                    document.getElementById(modelGameProgress[progressModel].elementIds[i]).style = 'display: inline-block;';
+                }
+            }
+        }
+    } else {
+        modelGameProgress['displayBuildings'] = {
+            activated: false,
+            elementIds: ['manageTownNavButton', 'upgradeSmallHouse']
+        };
+        modelGameProgress['displayUpgrades'] = {
+            activated: false,
+            elementIds: ['manageUpgradesNavButton']
+        };
+        modelGameProgress['displayJobs'] = {
+            activated: false,
+            elementIds: ['manageJobsNavButton', 'upgradeResourceCollector']
+        };
+    }
+
+    if ($('.selected.btn')[0].offsetHeight === 0) {
+        updateSelectedView(document.getElementById('resourceGenerationNavButton'));
+    }
 }
 
 function revealOverlay(id) {
@@ -701,6 +743,7 @@ function joinGameSession(game_password) {
     window.setTimeout(function() {
         socket.emit('update_current_room_name');
         initModelUpgrades(modelUpgrades);
+        updateDisplayedGameProgress();
         createTooltips();
     }, 250);
 }
@@ -748,6 +791,7 @@ function leaveGameSession() {
         localStorage.setItem('modelResource', JSON.stringify(modelResource));
         localStorage.setItem('modelResourceRates', JSON.stringify(modelResourceRates));
         localStorage.setItem('modelUpgrades', JSON.stringify(modelUpgrades));
+        localStorage.setItem('modelGameProgress', JSON.stringify(modelGameProgress));
     }
     window.setTimeout(function() {
         if (!(is_host)) {
@@ -775,6 +819,7 @@ function eraseGameProgress() {
     localStorage.removeItem('modelResource');
     localStorage.removeItem('modelResourceRates');
     localStorage.removeItem('modelUpgrades');
+    localStorage.removeItem('modelGameProgress');
     localStorage.removeItem('username');
     randomizeSelectedTitle();
     var blackout = function() {
@@ -900,9 +945,8 @@ function setupStaticEventListeners() {
     // Check to see if user dismissed the cookies warning.
     var cookieLawBanner = document.getElementById('cookieLawWarning');
     var userDismissedCookiesWarning = localStorage.getItem('cookiesWarningDismissed');
-    if (userDismissedCookiesWarning) {
-        cookieLawBanner.style.display = 'none';
-    } else {
+    if (userDismissedCookiesWarning === null) {
+        cookieLawBanner.style = 'display: flex;';
         var cookieLawDismissButton = document.getElementById('cookieDismiss');
         cookieLawDismissButton.addEventListener('click', function() {
             $(cookieLawBanner).fadeOut(250);
@@ -1103,6 +1147,7 @@ function updateWithDataFromServer(data) {
     var playerResourceData = data.resource_data;
     var playerResourceRatesData = data.resource_rates_data;
     var playerModelUpgrades = data.upgrade_model;
+    var playerModelGameProgress = data.progress_model;
     // Replace default resource values with host player's resource values.
     if (playerResourceData !== null) {
         modelResource['resource'] = playerResourceData['resource'];
@@ -1121,6 +1166,11 @@ function updateWithDataFromServer(data) {
     if (playerModelUpgrades) {
         modelUpgrades['smallHouse'] = playerModelUpgrades['smallHouse'];
         modelUpgrades['resourceCollector'] = playerModelUpgrades['resourceCollector'];
+    }
+    if (playerModelGameProgress) {
+        modelGameProgress['displayBuildings'] = playerModelGameProgress['displayBuildings'];
+        modelGameProgress['displayUpgrades'] = playerModelGameProgress['displayUpgrades'];
+        modelGameProgress['displayJobs'] = playerModelGameProgress['displayJobs'];
     }
     // Init all resource generation velocities (current rate for the user)
     modelJobs['resourceCollector']['velocity'] = 
@@ -1169,6 +1219,7 @@ function autosaveTimer() {
         localStorage.setItem('modelResource', JSON.stringify(modelResource));
         localStorage.setItem('modelResourceRates', JSON.stringify(modelResourceRates));
         localStorage.setItem('modelUpgrades', JSON.stringify(modelUpgrades));
+        localStorage.setItem('modelGameProgress', JSON.stringify(modelGameProgress));
     }
     window.setTimeout(autosaveTimer, 15000);
 }
@@ -1254,11 +1305,49 @@ function updateResourceValues() {
     document.getElementById('numOwnedSmallHouses').innerText = modelResource['smallHousesOwned'];
     
     if (is_host && is_in_a_server) {
-        var data = { resource_data: modelResource, resource_rates_data: modelResourceRates, upgrade_model: modelUpgrades };
+        var data = { resource_data: modelResource, resource_rates_data: modelResourceRates, upgrade_model: modelUpgrades, progress_model: modelGameProgress };
         socket.emit('data_update', data);
     }
     
+    if (!modelGameProgress.displayBuildings.activated && modelResource['resource'] >= 20) {
+        applyGameProgressEffect(modelGameProgress.displayBuildings);
+    }
+    if (!modelGameProgress.displayUpgrades.activated && modelResource['resource'] >= 90) {
+        applyGameProgressEffect(modelGameProgress.displayUpgrades);
+    }
+    if (!modelGameProgress.displayJobs.activated && modelResource['townspeopleAlive'] >= 1) {
+        applyGameProgressEffect(modelGameProgress.displayJobs);
+    }
+    
     window.setTimeout(updateResourceValues, 100);
+}
+
+// Displays new content to a player as part of the user experience.
+function applyGameProgressEffect(milestone) {
+    milestone.activated = true;
+    for (let i = 0; i < milestone.elementIds.length; i++) {
+        $(document.getElementById(milestone.elementIds[i])).fadeIn(500);
+    }
+}
+
+// Updates displayed game progress based on activated features when you join a game.
+// Only meant to be used once on server join.
+function updateDisplayedGameProgress() {
+    for (let progressModel in modelGameProgress) {
+        for (let i = 0; i < modelGameProgress[progressModel].elementIds.length; i++) {
+            document.getElementById(modelGameProgress[progressModel].elementIds[i]).style = 'display: none;';
+        }
+    }
+    
+    if (modelGameProgress.displayBuildings.activated && modelResource['resource'] >= 20) {
+        applyGameProgressEffect(modelGameProgress.displayBuildings);
+    }
+    if (modelGameProgress.displayUpgrades.activated && modelResource['resource'] >= 90) {
+        applyGameProgressEffect(modelGameProgress.displayUpgrades);
+    }
+    if (modelGameProgress.displayJobs.activated && modelResource['townspeopleAlive'] >= 1) {
+        applyGameProgressEffect(modelGameProgress.displayJobs);
+    }
 }
 
 // Update the actual values of resources.
