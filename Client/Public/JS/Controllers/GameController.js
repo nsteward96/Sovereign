@@ -184,7 +184,6 @@ function initModelUpgrades(data) {
     setupUpgradeEventListeners();
 }
 
-
 // Gets rid of all upgrade elements in each category.
 function destroyUpgrades() {
     $('.upgrade-display-box').remove();
