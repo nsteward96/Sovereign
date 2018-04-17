@@ -53,7 +53,6 @@ function initModels() {
     var storedUsername = JSON.parse(localStorage.getItem('username'));
     var storedResourceRatesData = JSON.parse(localStorage.getItem('modelResourceRates'));
     var storedGameProgressData = JSON.parse(localStorage.getItem('modelGameProgress'));
-    console.log(storedGameProgressData);
 
     // Replace default values with saved resource values.
     if (storedResourceData !== null) {
