@@ -780,7 +780,6 @@ function outputErrorMessageToErrorDisplay(error, effect) {
         $(errorDisplayDiv).fadeOut(500, function() {
             errorDisplayDiv.innerText = '';
         });
-
     }
 }
 
@@ -793,6 +792,7 @@ function leaveGameSession() {
         localStorage.setItem('modelUpgrades', JSON.stringify(modelUpgrades));
         localStorage.setItem('modelGameProgress', JSON.stringify(modelGameProgress));
     }
+    revealOverlay('kickedFromRoomContainer');
     window.setTimeout(function() {
         if (!(is_host)) {
             emptyFlavorTextArea();
@@ -984,6 +984,11 @@ function setupStaticEventListeners() {
     var resetGameConfirmationCancel = document.getElementById('resetGameConfirmationCancel');
     resetGameConfirmationCancel.addEventListener('click', function() {
         hideOverlay();
+    });
+    
+    var kickedFromRoomOkButton = document.getElementById('kickedFromRoomClose');
+    kickedFromRoomOkButton.addEventListener('click', function() {
+        hideOverlay(); 
     });
 }
 

@@ -431,13 +431,16 @@ body, html {
     z-index: 10000;
 }
 
+.overlay-container > div {
+    top: 35vh;
+}
+
 .enter-username {
     min-width: 250px;
     color: white;
     font-family: 'Fondamento', cursive;
     font-size: 32px;
     padding: 0 25%;
-    top: 30%;
 }
 
 .enter-username-submit {
@@ -456,7 +459,6 @@ body, html {
 
 .reset-game-confirmation-container {
     padding: 0 25%;
-    top: 30%;
 }
 
 .reset-game-confirmation-message {
@@ -469,6 +471,17 @@ body, html {
     cursor: pointer;
     font-family: 'Fondamento', cursive;
     font-size: 20px;
+}
+
+/* Kicked from room message styling */
+.kicked-from-room-container {
+    color: white;
+    font-family: 'Fondamento', cursive;
+    font-size: 20px;
+}
+
+.kicked-from-room-container > button {
+    cursor: pointer;
 }
 
 /* Cookie Law Banner Stylings */
@@ -513,7 +526,6 @@ body, html {
     font-size: 20px;
     left: 25%;
     padding: 0 12.5%;
-    top: 30%;
 }
 
 .set-game-password-field {
@@ -526,7 +538,6 @@ body, html {
     min-width: 250px;
     left: 30%;
     padding: 0 12.5%;
-    top: 30%;
 }
 
 .view-room-occupants {
