@@ -990,7 +990,6 @@ function setupStaticEventListeners() {
 // Changes the currently-displayed view.
 function updateSelectedView(divBeingSelected) {
     // Update which button is currently selected.
-    console.log(divBeingSelected);
     var currentlySelectedDiv = document.getElementsByClassName('selected')[0];
     if (currentlySelectedDiv !== divBeingSelected) {
         document.getElementsByClassName('selected')[0].classList.remove('selected');
