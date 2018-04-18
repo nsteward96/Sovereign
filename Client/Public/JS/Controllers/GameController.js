@@ -1256,9 +1256,7 @@ function updateWithDataFromServer(data) {
 // Initializes the autosave timer to ensure user data persistence.
 //                  User data is autosaved every 15 seconds.
 function autosaveTimer() {
-    if (is_host) {
-        save();
-    }
+    save();
     window.setTimeout(autosaveTimer, 15000);
 }
 
