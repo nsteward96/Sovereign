@@ -121,7 +121,6 @@ function initModels() {
     createTooltips();
 }
 
-
 // Inits the player's current progress in the game, altering what they can see.
 function initModelGameProgress(gameProgress) {
     gameProgress = gameProgress || false;
