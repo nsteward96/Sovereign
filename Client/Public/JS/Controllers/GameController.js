@@ -114,80 +114,11 @@ function initModels() {
             buyButtonId: 'buildingSmallHouseBuyButton',
             sellButtonId: 'buildingSmallHouseSellButton'
         };
-        
-    initModelUpgrades();
+
     initModelGameProgress(storedGameProgressData);
+    initModelUpgrades();
 
     createTooltips();
-}
-
-// Init the upgrades model.
-function initModelUpgrades(data) {
-    data = data || false;
-    destroyUpgrades();
-
-    var createUpgrade = function(elementToAppendTo, className, id) {
-        var element = document.createElement('div');
-        element.className = className;
-        element.id = id;
-        elementToAppendTo.appendChild(element);
-    };
-    
-    var storedModelUpgrades = null;
-    if (is_host) {
-        storedModelUpgrades = JSON.parse(localStorage.getItem('modelUpgrades'));
-    } else if (data !== false) {
-        storedModelUpgrades = data;
-    }
-
-    if (storedModelUpgrades !== null) {
-        modelUpgrades['smallHouse'] = storedModelUpgrades['smallHouse'];
-        modelUpgrades['resourceCollector'] = storedModelUpgrades['resourceCollector'];
-    } else {
-        modelUpgrades['smallHouse'] =
-            {
-                reinforcedHousing:
-                    {
-                        containerId: 'upgradeSmallHouse',
-                        titleId: 'upgradeContainerTitleSmallHouse',
-                        parentId: 'upgradeListBoxSmallHouse',
-                        buyButtonId: 'upgradeDisplayBoxReinforcedHousing',
-                        price: {'resource': 200},
-                        purchased: false
-                    }
-            };
-        modelUpgrades['resourceCollector'] = 
-            {
-                agriculturalEducation:
-                    {
-                        containerId: 'upgradeResourceCollector',
-                        titleId: 'upgradeContainerTitleResourceCollector',
-                        parentId: 'upgradeListBoxResourceCollector',
-                        buyButtonId: 'upgradeDisplayBoxAgriculturalEducation',
-                        price: {'resource': 500},
-                        purchased: false
-                    }
-            };
-    }
-    for (let modelCategory in modelUpgrades) {
-        for (let model in modelUpgrades[modelCategory]) {
-            if (modelUpgrades[modelCategory][model]['purchased']) {
-                removeUpgrade(modelUpgrades[modelCategory][model]);
-            } else {
-                var elementParent = document.getElementById(modelUpgrades[modelCategory][model]['parentId']);
-                createUpgrade(elementParent, 'upgrade-display-box', modelUpgrades[modelCategory][model]['buyButtonId']);
-                document.getElementById(modelUpgrades[modelCategory][model]['titleId']).style = 'display: block;';
-            }
-        }
-    }
-    
-    setupUpgradeEventListeners();
-}
-
-// Gets rid of all upgrade elements in each category.
-function destroyUpgrades() {
-    $('.upgrade-display-box').remove();
-    $('.upgrade-container-title').hide();
 }
 
 // Inits the player's current progress in the game, altering what they can see.
@@ -227,6 +158,98 @@ function initModelGameProgress(gameProgress) {
     if ($('.selected.btn')[0].offsetHeight === 0) {
         updateSelectedView(document.getElementById('resourceGenerationNavButton'));
     }
+}
+
+// Init the upgrades model.
+function initModelUpgrades(data) {
+    data = data || false;
+    destroyUpgrades();
+
+    var createUpgrade = function(elementToAppendTo, className, id) {
+        var element = document.createElement('div');
+        element.className = className;
+        element.id = id;
+        elementToAppendTo.appendChild(element);
+    };
+    
+    var storedModelUpgrades = null;
+    if (is_host) {
+        storedModelUpgrades = JSON.parse(localStorage.getItem('modelUpgrades'));
+    } else if (data !== false) {
+        storedModelUpgrades = data;
+    }
+
+    if (storedModelUpgrades !== null) {
+        modelUpgrades['smallHouse'] = storedModelUpgrades['smallHouse'];
+        modelUpgrades['resourceCollector'] = storedModelUpgrades['resourceCollector'];
+    } else {
+        modelUpgrades['smallHouse'] =
+            {
+                reinforcedHousing:
+                    {
+                        containerId: 'upgradeSmallHouse',
+                        titleId: 'upgradeContainerTitleSmallHouse',
+                        parentId: 'upgradeListBoxSmallHouse',
+                        buyButtonId: 'upgradeDisplayBoxReinforcedHousing',
+                        purchasedId: 'upgradesPurchasedDisplayBoxReinforcedHousing',
+                        purchasedContainerId: 'upgradesPurchasedListBoxSmallHouse',
+                        purchasedContainerParentId: 'upgradesPurchasedSmallHouse',
+                        price: {'resource': 200},
+                        purchased: false
+                    }
+            };
+        modelUpgrades['resourceCollector'] = 
+            {
+                agriculturalEducation:
+                    {
+                        containerId: 'upgradeResourceCollector',
+                        titleId: 'upgradeContainerTitleResourceCollector',
+                        parentId: 'upgradeListBoxResourceCollector',
+                        buyButtonId: 'upgradeDisplayBoxAgriculturalEducation',
+                        purchasedId: 'upgradesPurchasedDisplayBoxAgriculturalEducation',
+                        purchasedContainerId: 'upgradesPurchasedListBoxResourceCollector',
+                        purchasedContainerParentId: 'upgradesPurchasedResourceCollector',
+                        price: {'resource': 500},
+                        purchased: false
+                    }
+            };
+    }
+    for (let modelCategory in modelUpgrades) {
+        for (let model in modelUpgrades[modelCategory]) {
+            var elementParent = document.getElementById(modelUpgrades[modelCategory][model]['parentId']);
+            createUpgrade(elementParent, 'upgrade-display-box', modelUpgrades[modelCategory][model]['buyButtonId']);
+            document.getElementById(modelUpgrades[modelCategory][model]['containerId']).style = 'display: block;';
+            if (modelUpgrades[modelCategory][model]['purchased']) {
+                removeUpgrade(modelUpgrades[modelCategory][model]);
+            }
+        }
+    }
+    updateNoUpgradesAvailableDisplay();
+    
+    setupUpgradeEventListeners();
+}
+
+// Gets rid of all upgrade elements in each category.
+function destroyUpgrades() {
+    $('.upgrade-display-box').remove();
+    $('.upgrade-container').hide();
+    $('.upgrades-purchased-container').hide();
+}
+
+// Displays the 'no upgrades available' div, or hides it, based on if upgrades are available for purchase.
+function updateNoUpgradesAvailableDisplay() {
+    var upgradesContainers = $('.upgrade-container');
+    var hasUpgradesAvailable = true;
+    for (let i = 0; i < upgradesContainers.length; i++) {
+        if (upgradesContainers[i].style.display === 'block') {
+            hasUpgradesAvailable = false;
+        }
+    }
+    if (hasUpgradesAvailable) {
+        $(document.getElementById('noUpgradesAvailableContainer')).fadeIn(300);
+    } else {
+        document.getElementById('noUpgradesAvailableContainer').style = 'display: none;';
+    }   
 }
 
 function revealOverlay(id) {
@@ -742,8 +765,8 @@ function joinGameSession(game_password) {
     socket.emit('namespace_change', { room: game_password, player_name: username });
     window.setTimeout(function() {
         socket.emit('update_current_room_name');
-        initModelUpgrades(modelUpgrades);
         updateDisplayedGameProgress();
+        initModelUpgrades(modelUpgrades);
         createTooltips();
     }, 250);
 }
@@ -787,10 +810,7 @@ function outputErrorMessageToErrorDisplay(error, effect) {
 function leaveGameSession() {
     socket.emit('reset_namespace', username);
     if (is_host && is_in_a_server) {
-        localStorage.setItem('modelResource', JSON.stringify(modelResource));
-        localStorage.setItem('modelResourceRates', JSON.stringify(modelResourceRates));
-        localStorage.setItem('modelUpgrades', JSON.stringify(modelUpgrades));
-        localStorage.setItem('modelGameProgress', JSON.stringify(modelGameProgress));
+        save();
     }
     revealOverlay('kickedFromRoomContainer');
     window.setTimeout(function() {
@@ -893,8 +913,11 @@ function applyUpgradeEffect(upgrade) {
         modelUpgrades['smallHouse']['reinforcedHousing']['purchased'] = true;
     }
     updateTooltipsAfterUpgrade();
-    if (is_host && is_in_a_server) {
-        socket.emit('update_tooltips_after_upgrade');
+    if (is_host) {
+        save();
+        if (is_in_a_server) {
+            socket.emit('update_tooltips_after_upgrade');
+        }
     }
     removeUpgrade(upgrade);
 }
@@ -911,11 +934,24 @@ function removeUpgrade(upgrade) {
     var upgradeElement = document.getElementById(upgrade['buyButtonId']);
     if (upgradeElement) {
         upgradeElement.removeEventListener('click', buyUpgrade);
-        upgradeElement.style = 'display: none;';
-        if (upgradeElement.parentElement.offsetHeight === 0) {
-            document.getElementById(upgrade['titleId']).style = 'display: none;';
+        moveUpgradeToPurchasedBox(upgrade);
+        
+        if (document.getElementById(upgrade['parentId']).offsetHeight === 0) {
+            document.getElementById(upgrade['containerId']).style = 'display: none;';
         }
+        updateNoUpgradesAvailableDisplay();
     }
+}
+
+function moveUpgradeToPurchasedBox(upgrade) {
+    var upgradeElement = document.getElementById(upgrade['buyButtonId']);
+    var purchasedBox = document.getElementById(upgrade['purchasedContainerId']);
+    upgradeElement.style = 'display: block; cursor: default;';
+    
+    var popped = $(upgradeElement).detach();
+    popped.appendTo(purchasedBox);
+    document.getElementById(upgrade['purchasedContainerParentId']).style = 'display: block;';
+    document.getElementById('upgradesPurchasedContainer').style = 'display: block;';
 }
 
 // Event listeners that are static - they operate independently of the user's
@@ -1220,13 +1256,18 @@ function updateWithDataFromServer(data) {
 // Initializes the autosave timer to ensure user data persistence.
 //                  User data is autosaved every 15 seconds.
 function autosaveTimer() {
+    save();
+    window.setTimeout(autosaveTimer, 15000);
+}
+
+// Performs the function of the autosaveTimer without the repetition.
+function save() {
     if (is_host) {
         localStorage.setItem('modelResource', JSON.stringify(modelResource));
         localStorage.setItem('modelResourceRates', JSON.stringify(modelResourceRates));
         localStorage.setItem('modelUpgrades', JSON.stringify(modelUpgrades));
         localStorage.setItem('modelGameProgress', JSON.stringify(modelGameProgress));
     }
-    window.setTimeout(autosaveTimer, 15000);
 }
 
 // Initializes a timer that will result in new townspeople arriving in town.
