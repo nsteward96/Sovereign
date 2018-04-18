@@ -221,9 +221,6 @@ function initModelUpgrades(data) {
             document.getElementById(modelUpgrades[modelCategory][model]['containerId']).style = 'display: block;';
             if (modelUpgrades[modelCategory][model]['purchased']) {
                 removeUpgrade(modelUpgrades[modelCategory][model]);
-                // var elementParent = document.getElementById(modelUpgrades[modelCategory][model]['purchasedContainerParentId']);
-                // createUpgrade(elementParent, 'upgrades-purchased-display-box', modelUpgrades[modelCategory][model]['purchasedId']);
-                // document.getElementById(modelUpgrades[modelCategory][model]['purchasedContainerParentId']).style = 'display: block;';
             }
         }
     }
