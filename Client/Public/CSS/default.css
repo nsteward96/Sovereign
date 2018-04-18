@@ -191,31 +191,38 @@ body, html {
     transition: box-shadow 300ms, transform 300ms;
 }
 
-.upgrade-container {
-    height: auto;
-    width: 100%;
+
+.upgrade-container,
+.upgrades-purchased-container {
     display: none;
+    width: 100%;
     margin-bottom: 10px;
 }
 
-.upgrade-container-title {
+.upgrades-purchased-container > p {
+    border-top: 6px solid #444;
+}
+
+.upgrade-container-title,
+.upgrades-purchased-container-title {
     width: 80%;
     background: linear-gradient(to right, #DDDDDD, #FAFAFF);
     border-radius: 3px;
-    display: none;
     font-size: 20px;
     font-weight: 600;
     margin-bottom: 17px;
     padding-left: 5px;
 }
 
-.upgrade-list-box {
+.upgrade-list-box,
+.upgrades-purchased-list-box {
     height: auto;
     margin: 0;
     padding: 0;
 }
 
-.upgrade-display-box {
+.upgrade-display-box,
+.upgrades-purchased-display-box {
     height: 93px;
     width: 93px;
     background-position: center center;
@@ -235,6 +242,22 @@ body, html {
 
 .upgrade-display-box#upgradeDisplayBoxAgriculturalEducation {
     background-image: url('../Assets/jobs-images/peasant.jpg');
+}
+
+.no-upgrades-available-container {
+    height: 147px;
+    padding-top: 60px;
+    display: none;
+    font-style: italic;
+    text-align: center;
+}
+
+.upgrades-purchased-container {
+    display: none;
+}
+
+.upgrades-purchased-container > p {
+    font-size: 24px;
 }
 
 .job-container, .building-container {
