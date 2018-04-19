@@ -17,6 +17,8 @@ var is_host = true;
 var is_in_a_server = false;
 
 $(document).ready(function() {
+    loadingPageGraphic();
+    
     // Setup socket - connection to server (Do not move this from the document ready)
     socket = io('https://sovereign-nathansteward.c9users.io');
 
@@ -33,6 +35,14 @@ $(document).ready(function() {
     townspeopleArrivalTimer();
     updateResourceValues();
 });
+
+function loadingPageGraphic() {
+    window.setTimeout(function() {
+        $('#pageLoadOverlay').animate({opacity: 0}, 750, function() {
+            $('#pageLoadOverlay').css({display: 'none'});
+        });
+    }, 500);
+}
 
 // Initializes models with content.
 function initModels() {

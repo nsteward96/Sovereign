@@ -16,6 +16,20 @@ body, html {
     height: 100%;
 }
 
+/* Page Load Overlay Div */
+.page-load-overlay {
+    height: 100%;
+    width: 100%;
+    background-color: #202020;
+    color: white;
+    font-family: 'Fondamento', cursive;
+    font-size: 40px;
+    padding-top: calc(50vh - 14px);
+    position: absolute;
+    text-align: center;
+    z-index: 100000;
+}
+
 /* General Styling Classes */
 .remove-padding {
     padding: 0px;   
