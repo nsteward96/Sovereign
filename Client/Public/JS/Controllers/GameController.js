@@ -47,14 +47,14 @@ function loadingPageGraphic() {
 // Initializes models with content.
 function initModels() {
     // Init all resource values to 0.
-    modelResource['resource'] = 0;
+    modelResource['lumber'] = 0;
     modelResource['townspeopleAvailable'] = 0;
     modelResource['townspeopleAlive'] = 0;
     modelResource['townspeopleMax'] = 0;
-    modelResource['townspeopleResourceCollector'] = 0;
+    modelResource['townspeopleLumberjack'] = 0;
     modelResource['smallHousesOwned'] = 0;
     // Init all resource generation rates (rate per worker).
-    modelResourceRates['resourceCollector'] = 0.5; // Resource generated per Resource collector
+    modelResourceRates['lumberjack'] = 0.5; // Resource generated per lumberjack
     modelResourceRates['incrementalGrowthRateBuildings'] = 1.3; // Cost increase per building
     modelResourceRates['smallHouse'] = 2; // Increase of max residents per house
     
@@ -66,11 +66,11 @@ function initModels() {
 
     // Replace default values with saved resource values.
     if (storedResourceData !== null) {
-        modelResource['resource'] = storedResourceData['resource'];
+        modelResource['lumber'] = storedResourceData['lumber'];
         modelResource['townspeopleAvailable'] = storedResourceData['townspeopleAvailable'];
         modelResource['townspeopleAlive'] = storedResourceData['townspeopleAlive'];
         modelResource['townspeopleMax'] = storedResourceData['townspeopleMax'];
-        modelResource['townspeopleResourceCollector'] = storedResourceData['townspeopleResourceCollector'];
+        modelResource['townspeopleLumberjack'] = storedResourceData['townspeopleLumberjack'];
         modelResource['smallHousesOwned'] = storedResourceData['smallHousesOwned'];
     }
     if (storedUsername !== null) {
@@ -80,7 +80,7 @@ function initModels() {
         revealOverlay('enterUsername');
     }
     if (storedResourceRatesData !== null) {
-        modelResourceRates['resourceCollector'] = storedResourceRatesData['resourceCollector'];
+        modelResourceRates['lumberjack'] = storedResourceRatesData['lumberjack'];
         modelResourceRates['smallHouse'] = storedResourceRatesData['smallHouse'];
     }
     
@@ -106,21 +106,21 @@ function initModels() {
             navButton: document.getElementById('manageJobsNavButton')
         };
     // Init the jobs model.
-    modelJobs['resourceCollector'] = 
+    modelJobs['lumberjack'] = 
         {
-            id: 'jobResourceCollector',
-            resourceType: ['resource'],
-            velocity: {'resource': modelResourceRates['resourceCollector'] * modelResource['townspeopleResourceCollector']},
-            allocateButtonId: 'resourceCollectorAddWorker',
-            deallocateButtonId: 'resourceCollectorRemoveWorker'
+            id: 'jobLumberjack',
+            resourceType: ['lumber'],
+            velocity: {'lumber': modelResourceRates['lumberjack'] * modelResource['townspeopleLumberjack']},
+            allocateButtonId: 'lumberjackAddWorker',
+            deallocateButtonId: 'lumberjackRemoveWorker'
         };
     // Init the buildings model.
     modelBuildings['smallHouse'] = 
         {
             id: 'buildingSmallHouse',
-            basePrice: {'resource': 50},
-            resourceType: ['resource'],
-            price: determineCurrentPriceBuilding({'resource': 50}, modelResource['smallHousesOwned']),
+            basePrice: {'lumber': 50},
+            resourceType: ['lumber'],
+            price: determineCurrentPriceBuilding({'lumber': 50}, modelResource['smallHousesOwned']),
             buyButtonId: 'buildingSmallHouseBuyButton',
             sellButtonId: 'buildingSmallHouseSellButton'
         };
@@ -161,7 +161,7 @@ function initModelGameProgress(gameProgress) {
         };
         modelGameProgress['displayJobs'] = {
             activated: false,
-            elementIds: ['manageJobsNavButton', 'upgradeResourceCollector']
+            elementIds: ['manageJobsNavButton', 'upgradeLumberjack']
         };
     }
 
@@ -191,7 +191,7 @@ function initModelUpgrades(data) {
 
     if (storedModelUpgrades !== null) {
         modelUpgrades['smallHouse'] = storedModelUpgrades['smallHouse'];
-        modelUpgrades['resourceCollector'] = storedModelUpgrades['resourceCollector'];
+        modelUpgrades['lumberjack'] = storedModelUpgrades['lumberjack'];
     } else {
         modelUpgrades['smallHouse'] =
             {
@@ -204,22 +204,22 @@ function initModelUpgrades(data) {
                         purchasedId: 'upgradesPurchasedDisplayBoxReinforcedHousing',
                         purchasedContainerId: 'upgradesPurchasedListBoxSmallHouse',
                         purchasedContainerParentId: 'upgradesPurchasedSmallHouse',
-                        price: {'resource': 200},
+                        price: {'lumber': 200},
                         purchased: false
                     }
             };
-        modelUpgrades['resourceCollector'] = 
+        modelUpgrades['lumberjack'] = 
             {
-                agriculturalEducation:
+                woodenHandles:
                     {
-                        containerId: 'upgradeResourceCollector',
-                        titleId: 'upgradeContainerTitleResourceCollector',
-                        parentId: 'upgradeListBoxResourceCollector',
-                        buyButtonId: 'upgradeDisplayBoxAgriculturalEducation',
-                        purchasedId: 'upgradesPurchasedDisplayBoxAgriculturalEducation',
-                        purchasedContainerId: 'upgradesPurchasedListBoxResourceCollector',
-                        purchasedContainerParentId: 'upgradesPurchasedResourceCollector',
-                        price: {'resource': 500},
+                        containerId: 'upgradeLumberjack',
+                        titleId: 'upgradeContainerTitleLumberjack',
+                        parentId: 'upgradeListBoxLumberjack',
+                        buyButtonId: 'upgradeDisplayBoxWoodenHandles',
+                        purchasedId: 'upgradesPurchasedDisplayBoxWoodenHandles',
+                        purchasedContainerId: 'upgradesPurchasedListBoxLumberjack',
+                        purchasedContainerParentId: 'upgradesPurchasedLumberjack',
+                        price: {'lumber': 500},
                         purchased: false
                     }
             };
@@ -318,35 +318,35 @@ function createTooltips() {
         };
         document.getElementById(modelBuildings['smallHouse']['sellButtonId']).appendChild(TooltipBuilder(hashOptions));
     };
-    var createResourceCollectorAllocateTooltip = function() {
+    var createLumberjackAllocateTooltip = function() {
         var hashOptions = {
-            'title': 'Resource collector',
-            'description': 'More resources for the lord!',
-            'effects': '<div class="tooltip-effects">Each worker gives <span id="resourceCollectorAllocateTooltipEffects">'+modelResourceRates['resourceCollector']+'</span> resources a second</div>',
-            'workervelocity': modelJobs['resourceCollector']['velocity']
+            'title': 'Lumberjack',
+            'description': 'The timberlands must be abated. Its yield will be used to construct our sanctuaries.',
+            'effects': '<div class="tooltip-effects">Each worker gives <span id="lumberjackAllocateTooltipEffects">'+modelResourceRates['lumberjack']+'</span> lumber per second</div>',
+            'workervelocity': modelJobs['lumberjack']['velocity']
         };
-        document.getElementById(modelJobs['resourceCollector']['allocateButtonId']).appendChild(TooltipBuilder(hashOptions));
+        document.getElementById(modelJobs['lumberjack']['allocateButtonId']).appendChild(TooltipBuilder(hashOptions));
     };
-    var createResourceCollectorDeallocateTooltip = function() {
+    var createLumberjackDeallocateTooltip = function() {
         var hashOptions = {
-            'title': 'Resource collector',
-            'description': 'More resources for the lord!',
-            'effects': '<div class="tooltip-effects">Each worker gives <span id="resourceCollectorDeallocateTooltipEffects">'+modelResourceRates['resourceCollector']+'</span> resources a second</div>',
-            'workervelocity': modelJobs['resourceCollector']['velocity']
+            'title': 'Lumberjack',
+            'description': 'The timberlands must be abated. Its yield will be used to construct our sanctuaries.',
+            'effects': '<div class="tooltip-effects">Each worker gives <span id="lumberjackDeallocateTooltipEffects">'+modelResourceRates['lumberjack']+'</span> lumber per second</div>',
+            'workervelocity': modelJobs['lumberjack']['velocity']
         };
-        document.getElementById(modelJobs['resourceCollector']['deallocateButtonId']).appendChild(TooltipBuilder(hashOptions));
+        document.getElementById(modelJobs['lumberjack']['deallocateButtonId']).appendChild(TooltipBuilder(hashOptions));
     };
-    if (document.getElementById(modelUpgrades['resourceCollector']['agriculturalEducation']['buyButtonId']) !== null) {
-        var createUpgradeAgriculturalEducationTooltip = function() {
+    if (document.getElementById(modelUpgrades['lumberjack']['woodenHandles']['buyButtonId']) !== null) {
+        var createUpgradeWoodenHandlesTooltip = function() {
             var hashOptions = {
-                'title': 'Agricultural Education',
-                'description': 'Give your settlers a few tips on effective farming methods.',
-                'effects': '<div class="tooltip-effects">Increases gather rate by 0.5 resources per second.</div>',
-                'buyprice': modelUpgrades['resourceCollector']['agriculturalEducation']['price']
+                'title': 'Wooden Handles',
+                'description': 'A new home for the sharp rocks you use to cut trees. A quality-of-life improvement for your workers.',
+                'effects': '<div class="tooltip-effects">Increases gather rate by 0.5 lumber per second.</div>',
+                'buyprice': modelUpgrades['lumberjack']['woodenHandles']['price']
             };
-            document.getElementById(modelUpgrades['resourceCollector']['agriculturalEducation']['buyButtonId']).appendChild(TooltipBuilder(hashOptions));
+            document.getElementById(modelUpgrades['lumberjack']['woodenHandles']['buyButtonId']).appendChild(TooltipBuilder(hashOptions));
         };
-        createUpgradeAgriculturalEducationTooltip();
+        createUpgradeWoodenHandlesTooltip();
     }
     if (document.getElementById(modelUpgrades['smallHouse']['reinforcedHousing']['buyButtonId']) !== null) {
         var createUpgradeReinforcedHousingTooltip = function() {
@@ -363,8 +363,8 @@ function createTooltips() {
 
     createSmallHouseBuyButtonTooltip();
     createSmallHouseSellButtonTooltip();
-    createResourceCollectorAllocateTooltip();
-    createResourceCollectorDeallocateTooltip();
+    createLumberjackAllocateTooltip();
+    createLumberjackDeallocateTooltip();
     
     setupTooltipEventListeners();
 }
@@ -442,12 +442,15 @@ function randomizeSelectedTitle() {
 // Print some flavor text to the console when the user starts a new session.
 function printIntroductoryMessage() {
     if (modelResource['smallHousesOwned'] === 0) {
-        outputToFlavorTextArea('You awaken in a grassy field. Foggy and forgetful of your origins, you wonder what to do. ' + 
-            'Shelter is unseen in a couple mile radius. You should probably collect some resources and fashion yourself ' + 
-            'a form of safety, such as a small hut.');
+        outputToFlavorTextArea('You awaken in a grassy field. Foggy and forgetful of your origins, you wonder at your new surroundings. ' + 
+            'Shelter is unseen in a couple mile radius. You should probably acquire some resources and fabricate ' + 
+            'a form of housing for yourself, such as a small hut.');
     } else if (modelResource['smallHousesOwned'] > 0 && modelResource['smallHousesOwned'] < 15) {
         outputToFlavorTextArea('You are surrounded by a small community. Some describe the land as one previously inhabited ' + 
-            'by a prosperous kingdom. However, there are no consistent answers of how it fell.');
+            'by a prosperous kingdom. However, nobody knows for sure how it fell to ruin.');
+    } else if (modelResource['smallHousesOwned'] >= 15 && modelResource['smallHousesOwned'] < 30) {
+        outputToFlavorTextArea('Your village prospers under your leadership. Conflict may arise from threatened settlements if ' + 
+            'you continue to expand.');
     }
 }
 
@@ -512,12 +515,12 @@ function setupDynamicEventListeners() {
         });
     }
 
-    var genericResourceButton = document.getElementById('genericResourceButton');
+    var genericResourceButton = document.getElementById('lumberButton');
     genericResourceButton.addEventListener('click', function() {
         if (is_host) {
-            generateResource();
+            chopLumber();
         } else {
-            socket.emit('generate_resource');
+            socket.emit('chop_lumber');
         }
     });
     
@@ -603,8 +606,8 @@ function setupDynamicEventListeners() {
 // User assigns a job to an available townsperson.
 function allocateWorker(worker) {
     if (modelResource['townspeopleAvailable'] > 0) {
-        if (worker['id'] === 'jobResourceCollector') {
-            modelResource['townspeopleResourceCollector']++;
+        if (worker['id'] === 'jobLumberjack') {
+            modelResource['townspeopleLumberjack']++;
             modelResource['townspeopleAvailable']--;
             updateResourceVelocity();
         }
@@ -620,10 +623,10 @@ function allocateWorker(worker) {
 
 // Updates the rate at which resources are added to your total.
 function updateResourceVelocity() {
-    modelJobs['resourceCollector']['velocity'] = 
-        {'resource': modelResource['townspeopleResourceCollector'] * modelResourceRates['resourceCollector']};
-    updateTooltipWorkerVelocity(modelJobs['resourceCollector']);
-    socket.emit('update_resource_velocity', modelJobs['resourceCollector']);
+    modelJobs['lumberjack']['velocity'] = 
+        {'lumber': modelResource['townspeopleLumberjack'] * modelResourceRates['lumberjack']};
+    updateTooltipWorkerVelocity(modelJobs['lumberjack']);
+    socket.emit('update_resource_velocity', modelJobs['lumberjack']);
 }
 
 // Updates the tooltip for workers telling you how much they make per second.
@@ -657,8 +660,8 @@ function updateTooltipWorkerVelocity(worker) {
 
 // User takes away a job assigned to an available townsperson (creating an available townsperson).
 function deallocateWorker(worker) {
-    if (worker['id'] === 'jobResourceCollector' && modelResource['townspeopleResourceCollector'] > 0) {
-        modelResource['townspeopleResourceCollector']--;
+    if (worker['id'] === 'jobLumberjack' && modelResource['townspeopleLumberjack'] > 0) {
+        modelResource['townspeopleLumberjack']--;
         modelResource['townspeopleAvailable']++;
         updateResourceVelocity();
     } else {
@@ -672,8 +675,8 @@ function deallocateWorker(worker) {
 }
 
 function buyBuilding(building) {
-    if (building['id'] === 'buildingSmallHouse' && building['price']['resource'] <= modelResource['resource']) {
-        modelResource['resource'] -= building['price']['resource'];
+    if (building['id'] === 'buildingSmallHouse' && building['price']['lumber'] <= modelResource['lumber']) {
+        modelResource['lumber'] -= building['price']['lumber'];
         modelResource['smallHousesOwned']++;
         building['price'] = determineCurrentPriceBuilding(building['basePrice'], modelResource['smallHousesOwned']);
 
@@ -744,7 +747,7 @@ function sellBuilding(building) {
             modelResource['townspeopleAlive'] -= modelResourceRates['smallHouse'];
             modelResource['townspeopleAvailable'] -= modelResourceRates['smallHouse'];
             building['price'] = determineCurrentPriceBuilding(building['basePrice'], modelResource['smallHousesOwned']);
-            modelResource['resource'] += (building['price']['resource'])*.75;
+            modelResource['lumber'] += (building['price']['lumber'])*.75;
             
             updateTooltipBuyPrice(building);
             updateTooltipSellPrice(building);
@@ -755,10 +758,9 @@ function sellBuilding(building) {
     }
 }
 
-// Functionality: Iterates the generic 'resource' resource by 1.
-//                  Remove later. Merely to test functionality.
-function generateResource() {
-    modelResource['resource']++;
+// Iterates the lumber resource by 1.
+function chopLumber() {
+    modelResource['lumber']++;
 }
 
 // Creates a message in the chat box.
@@ -910,16 +912,16 @@ function setupUpgradeEventListeners() {
         upgradeReinforcedHousingButton.addEventListener('click', function(){ buyUpgrade(modelUpgrades['smallHouse']['reinforcedHousing']); });
     }
     
-    if (document.getElementById(modelUpgrades['resourceCollector']['agriculturalEducation']['buyButtonId']) !== null) {
-        var upgradeAgriculturalEducationButton = document.getElementById(modelUpgrades['resourceCollector']['agriculturalEducation']['buyButtonId']);
-        upgradeAgriculturalEducationButton.addEventListener('click', function(){ buyUpgrade(modelUpgrades['resourceCollector']['agriculturalEducation']); });
+    if (document.getElementById(modelUpgrades['lumberjack']['woodenHandles']['buyButtonId']) !== null) {
+        var upgradeWoodenHandlesButton = document.getElementById(modelUpgrades['lumberjack']['woodenHandles']['buyButtonId']);
+        upgradeWoodenHandlesButton.addEventListener('click', function(){ buyUpgrade(modelUpgrades['lumberjack']['woodenHandles']); });
     }
 }
 
 function buyUpgrade(upgrade) {
     if (is_host) {
-        if (modelResource['resource'] >= upgrade['price']['resource'] && upgrade['purchased'] !== true) {
-            modelResource['resource'] -= upgrade['price']['resource'];
+        if (modelResource['lumber'] >= upgrade['price']['lumber'] && upgrade['purchased'] !== true) {
+            modelResource['lumber'] -= upgrade['price']['lumber'];
             applyUpgradeEffect(upgrade);
             socket.emit('remove_upgrade_from_list', upgrade);
         }
@@ -929,10 +931,10 @@ function buyUpgrade(upgrade) {
 }
 
 function applyUpgradeEffect(upgrade) {
-    if (upgrade['buyButtonId'] === 'upgradeDisplayBoxAgriculturalEducation') {
-        modelResourceRates['resourceCollector'] += 0.5;
+    if (upgrade['buyButtonId'] === 'upgradeDisplayBoxWoodenHandles') {
+        modelResourceRates['lumberjack'] += 0.5;
         updateResourceVelocity();
-        modelUpgrades['resourceCollector']['agriculturalEducation']['purchased'] = true;
+        modelUpgrades['lumberjack']['woodenHandles']['purchased'] = true;
     } else if (upgrade['buyButtonId'] === 'upgradeDisplayBoxReinforcedHousing') {
         modelResourceRates['smallHouse'] += 1;
         updateMaxTownspeople();
@@ -949,9 +951,9 @@ function applyUpgradeEffect(upgrade) {
 }
 
 function updateTooltipsAfterUpgrade() {
-    updateTooltipWorkerVelocity(modelJobs['resourceCollector']);
-    updateTooltipEffects('resourceCollectorAllocateTooltipEffects', modelResourceRates['resourceCollector']);
-    updateTooltipEffects('resourceCollectorDeallocateTooltipEffects', modelResourceRates['resourceCollector']);
+    updateTooltipWorkerVelocity(modelJobs['lumberjack']);
+    updateTooltipEffects('lumberjackAllocateTooltipEffects', modelResourceRates['lumberjack']);
+    updateTooltipEffects('lumberjackDeallocateTooltipEffects', modelResourceRates['lumberjack']);
     updateTooltipEffects('smallHouseBuyTooltipEffects', modelResourceRates['smallHouse']);
     updateTooltipEffects('smallHouseSellTooltipEffects', modelResourceRates['smallHouse']);
 }
@@ -1172,8 +1174,8 @@ function setupServerEmitListeners() {
     socket.on('update_tooltip_building_sell_price_server', function(data) {
         updateTooltipSellPrice(data);
     });
-    socket.on('server_says_generate_resource', function() {
-        generateResource();
+    socket.on('server_says_chop_lumber', function() {
+        chopLumber();
     });
     
     socket.on('server_update_data', function(data) {
@@ -1222,22 +1224,22 @@ function updateWithDataFromServer(data) {
     var playerModelGameProgress = data.progress_model;
     // Replace default resource values with host player's resource values.
     if (playerResourceData !== null) {
-        modelResource['resource'] = playerResourceData['resource'];
+        modelResource['lumber'] = playerResourceData['lumber'];
         modelResource['townspeopleAvailable'] = playerResourceData['townspeopleAvailable'];
         modelResource['townspeopleAlive'] = playerResourceData['townspeopleAlive'];
         modelResource['townspeopleMax'] = playerResourceData['townspeopleMax'];
-        modelResource['townspeopleResourceCollector'] = playerResourceData['townspeopleResourceCollector'];
+        modelResource['townspeopleLumberjack'] = playerResourceData['townspeopleLumberjack'];
         modelResource['smallHousesOwned'] = playerResourceData['smallHousesOwned'];
     }
     // Replace default resource rate values with host player's resource rate values.
     if (playerResourceRatesData !== null) {
-        modelResourceRates['resourceCollector'] = playerResourceRatesData['resourceCollector'];
+        modelResourceRates['lumberjack'] = playerResourceRatesData['lumberjack'];
         modelResourceRates['smallHouse'] = playerResourceRatesData['smallHouse'];
     }
     // Replace default upgrade data with host player's upgrade models.
     if (playerModelUpgrades) {
+        modelUpgrades['lumberjack'] = playerModelUpgrades['lumberjack'];
         modelUpgrades['smallHouse'] = playerModelUpgrades['smallHouse'];
-        modelUpgrades['resourceCollector'] = playerModelUpgrades['resourceCollector'];
     }
     if (playerModelGameProgress) {
         modelGameProgress['displayBuildings'] = playerModelGameProgress['displayBuildings'];
@@ -1245,8 +1247,8 @@ function updateWithDataFromServer(data) {
         modelGameProgress['displayJobs'] = playerModelGameProgress['displayJobs'];
     }
     // Init all resource generation velocities (current rate for the user)
-    modelJobs['resourceCollector']['velocity'] = 
-        {'resource': modelResourceRates['resourceCollector'] * modelResource['townspeopleResourceCollector']};
+    modelJobs['lumberjack']['velocity'] = 
+        {'lumber': modelResourceRates['lumberjack'] * modelResource['townspeopleLumberjack']};
     // Init the views model.
     modelViews['resourceGenerationView'] = 
         {
@@ -1264,21 +1266,21 @@ function updateWithDataFromServer(data) {
             navButton: document.getElementById('manageJobsNavButton')
         };
     // Init the jobs model.
-    modelJobs['resourceCollector'] = 
+    modelJobs['lumberjack'] = 
         {
-            id: 'jobResourceCollector',
-            resourceType: ['resource'],
-            velocity: {'resource': modelResourceRates['resourceCollector'] * modelResource['townspeopleResourceCollector']},
-            allocateButtonId: 'resourceCollectorAddWorker',
-            deallocateButtonId: 'resourceCollectorRemoveWorker'
+            id: 'jobLumberjack',
+            resourceType: ['lumber'],
+            velocity: {'lumber': modelResourceRates['lumberjack'] * modelResource['townspeopleLumberjack']},
+            allocateButtonId: 'lumberjackAddWorker',
+            deallocateButtonId: 'lumberjackRemoveWorker'
         };
     // Init the buildings model.
     modelBuildings['smallHouse'] = 
         {
             id: 'buildingSmallHouse',
-            basePrice: {'resource': 50},
-            resourceType: ['resource'],
-            price: determineCurrentPriceBuilding({'resource': 50}, modelResource['smallHousesOwned']),
+            basePrice: {'lumber': 50},
+            resourceType: ['lumber'],
+            price: determineCurrentPriceBuilding({'lumber': 50}, modelResource['smallHousesOwned']),
             buyButtonId: 'buildingSmallHouseBuyButton',
             sellButtonId: 'buildingSmallHouseSellButton'
         };
@@ -1314,7 +1316,7 @@ function townspeopleArrivalTimer() {
         if (incomingTownspeople === 1) {
             if (Math.ceil(randomChanceMessage*4) === 1) {
                 message = 'A young lad, barely a man, approaches. He asks if he can work ' + 
-                    'in exchange for a place to call "home".';
+                    'in exchange for a place to call home.';
             } else if (Math.ceil(randomChanceMessage*4) === 2) {
                 message = 'An older gentleman saunters into view. He smiles at the sight ' + 
                     'of friendly faces. He offers his services in exchange for shelter.';
@@ -1328,13 +1330,13 @@ function townspeopleArrivalTimer() {
         } else if (incomingTownspeople === 2) {
             if (Math.ceil(randomChanceMessage*3) === 1) {
                 message = 'A weathered gentleman and his son venture into your camp. ' + 
-                'He desires shelter for himself and his boy, offering honest work.';
+                'He desires a home for him and his boy, offering honest work.';
             } else if (Math.ceil(randomChanceMessage*3) === 2) {
-                message = 'A woman and her daughter approach. They seek respite from ' + 
+                message = 'A woman and her daughter approach. They seek shelter from ' + 
                     'the elements, and know some invaluable trade skills.';
             } else if (Math.ceil(randomChanceMessage*3) === 3) {
                 message = 'A woman and her son approach. The woman is tired, and requires ' + 
-                'some medical attention. With some time, they prove to be valuable allies.';
+                'some medical attention. With some time, they may prove to be valuable allies.';
             }
         } else if (incomingTownspeople === 3) {
             if (Math.ceil(randomChanceMessage*3) === 1) {
@@ -1344,12 +1346,12 @@ function townspeopleArrivalTimer() {
                     'offer their abilities with gratitude.';
             } else if (Math.ceil(randomChanceMessage*3) === 2) {
                 message = 'Three women come into town without a word. ' + 
-                    'Despite your prying, they do not say a word. But they do take up ' + 
+                    'Despite your prying, they do not say where they\'re from. But they do take up ' + 
                     'residence in one of your open homes, and willingly accept work.';
             } else if (Math.ceil(randomChanceMessage*3) === 3) {
                 message = 'Three men stride into town, seeking work. ' + 
                     '\'If anything needs lifting, just call us!\' Good labor is always ' + 
-                    'welcome to come by.';
+                    'welcome here.';
             }
         }
         
@@ -1366,19 +1368,19 @@ function townspeopleArrivalTimer() {
 function updateResourceValues() {
     calculateResourceValuePerTick();
     var resourceName = document.getElementById('resource-name');
-    if (modelJobs['resourceCollector']['velocity']['resource'] > 0) {
-        resourceName.innerText = 'Resource (+' + formatNumberToSignificantValue(modelJobs['resourceCollector']['velocity']['resource']) + ')';
-    } else if (modelJobs['resourceCollector']['velocity']['resource'] < 0) {
+    if (modelJobs['lumberjack']['velocity']['lumber'] > 0) {
+        resourceName.innerText = 'Lumber (+' + formatNumberToSignificantValue(modelJobs['lumberjack']['velocity']['lumber']) + ')';
+    } else if (modelJobs['lumberjack']['velocity']['lumber'] < 0) {
         resourceName.innerText = 
-            'Resource (-' + formatNumberToSignificantValue(modelJobs['resourceCollector']['velocity']['resource']) + ')';
+            'Lumber (-' + formatNumberToSignificantValue(modelJobs['lumberjack']['velocity']['lumber']) + ')';
     } else {
-        resourceName.innerText = 'Resource';
+        resourceName.innerText = 'Lumber';
     }
-    document.getElementById('resource-value').innerText = formatNumberToSignificantValue(modelResource['resource']);
+    document.getElementById('resource-value').innerText = formatNumberToSignificantValue(modelResource['lumber']);
     document.getElementById('maxNumTownspeople').innerText = modelResource['townspeopleMax'];
     document.getElementById('numWorkers').innerText = modelResource['townspeopleAvailable'] + '/' 
         + modelResource['townspeopleAlive'];
-    document.getElementById('numWorkersResourceCollector').innerText = modelResource['townspeopleResourceCollector'];
+    document.getElementById('numWorkersLumberjack').innerText = modelResource['townspeopleLumberjack'];
     document.getElementById('numOwnedSmallHouses').innerText = modelResource['smallHousesOwned'];
     
     if (is_host && is_in_a_server) {
@@ -1386,10 +1388,10 @@ function updateResourceValues() {
         socket.emit('data_update', data);
     }
     
-    if (!modelGameProgress.displayBuildings.activated && modelResource['resource'] >= 20) {
+    if (!modelGameProgress.displayBuildings.activated && modelResource['lumber'] >= 20) {
         applyGameProgressEffect(modelGameProgress.displayBuildings);
     }
-    if (!modelGameProgress.displayUpgrades.activated && modelResource['resource'] >= 90) {
+    if (!modelGameProgress.displayUpgrades.activated && modelResource['lumber'] >= 90) {
         applyGameProgressEffect(modelGameProgress.displayUpgrades);
     }
     if (!modelGameProgress.displayJobs.activated && modelResource['townspeopleAlive'] >= 1) {
@@ -1416,10 +1418,10 @@ function updateDisplayedGameProgress() {
         }
     }
     
-    if (modelGameProgress.displayBuildings.activated && modelResource['resource'] >= 20) {
+    if (modelGameProgress.displayBuildings.activated && modelResource['lumber'] >= 20) {
         applyGameProgressEffect(modelGameProgress.displayBuildings);
     }
-    if (modelGameProgress.displayUpgrades.activated && modelResource['resource'] >= 90) {
+    if (modelGameProgress.displayUpgrades.activated && modelResource['lumber'] >= 90) {
         applyGameProgressEffect(modelGameProgress.displayUpgrades);
     }
     if (modelGameProgress.displayJobs.activated && modelResource['townspeopleAlive'] >= 1) {
@@ -1430,6 +1432,6 @@ function updateDisplayedGameProgress() {
 // Update the actual values of resources.
 function calculateResourceValuePerTick() {
     //Ticks are 10 times a second, or every .1s, thus the magic number .1.
-    var allocatedresources = modelJobs['resourceCollector']['velocity']['resource']*.1;
-    modelResource['resource'] += allocatedresources;
+    var allocatedResources = modelJobs['lumberjack']['velocity']['lumber']*.1;
+    modelResource['lumber'] += allocatedResources;
 }

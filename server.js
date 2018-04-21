@@ -119,8 +119,8 @@ io.on('connection', function(socket){
     socket.on('update_tooltip_building_sell_price', (data) => {
         socket.to(current_room).broadcast.emit('update_tooltip_building_sell_price_server', data); 
     });
-    socket.on('generate_resource', (data) => {
-        io.to(current_host_user[current_room].id).emit('server_says_generate_resource');
+    socket.on('chop_lumber', (data) => {
+        io.to(current_host_user[current_room].id).emit('server_says_chop_lumber');
     });
     
     socket.on('disconnect', function() {

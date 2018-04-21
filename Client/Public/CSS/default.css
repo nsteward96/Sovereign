@@ -189,17 +189,17 @@ body, html {
     font-weight: bold;
 }
 
-.btn#genericResourceButton {
+.btn#lumberButton {
     box-shadow: 0 6px #999;
     transform: translateY(0px);
     transition: box-shadow 300ms, transform 300ms;
 }
 
-.btn#genericResourceButton:hover {
+.btn#lumberButton:hover {
     background-color: #DDDDDD;
 }
 
-.btn#genericResourceButton:active {
+.btn#lumberButton:active {
     box-shadow: 0 1px #666;
     transform: translateY(5px);
     transition: box-shadow 300ms, transform 300ms;
@@ -254,8 +254,8 @@ body, html {
     background-image: url('../Assets/buildings-images/smallhouse.jpg');
 }
 
-.upgrade-display-box#upgradeDisplayBoxAgriculturalEducation {
-    background-image: url('../Assets/jobs-images/peasant.jpg');
+.upgrade-display-box#upgradeDisplayBoxWoodenHandles {
+    background-image: url('../Assets/jobs-images/lumberjack.jpg');
 }
 
 .no-upgrades-available-container {
@@ -347,8 +347,8 @@ body, html {
     background-size: cover;
 }
 
-#jobResourceCollector > .job-display-box {
-    background-image: url('../Assets/jobs-images/peasant.jpg');
+#jobLumberjack > .job-display-box {
+    background-image: url('../Assets/jobs-images/lumberjack.jpg');
 }
 
 #buildingSmallHouse > .building-display-box {

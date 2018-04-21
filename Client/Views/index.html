@@ -77,7 +77,7 @@
                     <div class="col-sm-12 main-display">
                         <!-- Main Display views go here -->
                         <div class="view resource-generation-view" id="resourceGenerationView">
-                            <button class="btn btn-sm" id="genericResourceButton">Generate Resource</button>
+                            <button class="btn btn-sm" id="lumberButton">Chop Lumber</button>
                         </div>
                         <div class="view manage-town-view" id="manageTownView" style="display: none;">
                             <div class="building-container" id="buildingSmallHouse">
@@ -94,9 +94,9 @@
                                 <div class="upgrade-container-title" id="upgradeContainerTitleSmallHouse">Housing</div>
                                 <div class="upgrade-list-box" id="upgradeListBoxSmallHouse"></div>
                             </div>
-                            <div class="upgrade-container" id="upgradeResourceCollector">
-                                <div class="upgrade-container-title" id="upgradeContainerTitleResourceCollector">Resource Collector</div>
-                                <div class="upgrade-list-box" id="upgradeListBoxResourceCollector"></div>
+                            <div class="upgrade-container" id="upgradeLumberjack">
+                                <div class="upgrade-container-title" id="upgradeContainerTitleLumberjack">Lumberjack</div>
+                                <div class="upgrade-list-box" id="upgradeListBoxLumberjack"></div>
                             </div>
                             <div class="no-upgrades-available-container" id="noUpgradesAvailableContainer">
                                 <div class="upgrade-container-no-upgrades-available">
@@ -109,9 +109,9 @@
                                     <div class="upgrades-purchased-container-title" id="upgradesPurchasedContainerTitleSmallHouse">Housing</div>
                                     <div class="upgrades-purchased-list-box" id="upgradesPurchasedListBoxSmallHouse"></div>
                                 </div>
-                                <div class="upgrades-purchased-container" id="upgradesPurchasedResourceCollector">
-                                    <div class="upgrades-purchased-container-title" id="upgradesPurchasedContainerTitleResourceCollector">Resource Collector</div>
-                                    <div class="upgrades-purchased-list-box" id="upgradesPurchasedListBoxResourceCollector"></div>
+                                <div class="upgrades-purchased-container" id="upgradesPurchasedLumberjack">
+                                    <div class="upgrades-purchased-container-title" id="upgradesPurchasedContainerTitleLumberjack">Lumberjack</div>
+                                    <div class="upgrades-purchased-list-box" id="upgradesPurchasedListBoxLumberjack"></div>
                                 </div>
                             </div>
                         </div>
@@ -123,13 +123,13 @@
                                     Townspeople available: <span id="numWorkers"></span>
                                 </span>
                             </div>
-                            <div class="job-container" id="jobResourceCollector">
+                            <div class="job-container" id="jobLumberjack">
                                 <div class="job-display-box"></div>
                                 <div class="job-description-box">
-                                    <span id="numWorkersResourceCollector"></span> on the job.
+                                    <span id="numWorkersLumberjack"></span> on the job.
                                 </div>
-                                <div class="add-worker" id="resourceCollectorAddWorker">+</div>
-                                <div class="remove-worker" id="resourceCollectorRemoveWorker">-</div>
+                                <div class="add-worker" id="lumberjackAddWorker">+</div>
+                                <div class="remove-worker" id="lumberjackRemoveWorker">-</div>
                             </div>
                         </div>
                     </div>
