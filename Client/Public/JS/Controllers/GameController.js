@@ -525,28 +525,44 @@ function setupDynamicEventListeners() {
     var sendMessageButton = document.getElementById('submitChatText');
     sendMessageButton.addEventListener('click', function() {
         var messageField = document.getElementById('chatboxTextField');
-        var message;
-        if (is_in_a_server) {
-            message = { username: username, message: messageField.value };
-            socket.emit('chat_message', message);
+        if (messageField.value.length > 240) {
+            outputErrorMessageToErrorDisplay('That message is too long to send. The max number of characters is 240, and that message was ' + messageField.value.length + ' long.', 'orange');
         } else {
-            message = 'Nobody else is here!';
-            createChatMessage(message);
+            var message;
+            if (is_in_a_server) {
+                message = { username: username, message: messageField.value };
+                socket.emit('chat_message', message);
+            } else {
+                message = 'Nobody else is here!';
+                createChatMessage(message);
+            }
+            messageField.value = '';
         }
-        messageField.value = '';
     });
     
     // User submits a game password in the menu to set game password
     var setGamePasswordSubmitButton = document.getElementById('setGamePasswordSubmit');
     var setGamePasswordField = document.getElementById('setGamePasswordField');
     setGamePasswordSubmitButton.addEventListener('click', function() {
-        if (game_password != setGamePasswordField.value) {
+        setGamePasswordField.value = setGamePasswordField.value.trim();
+        if (game_password != setGamePasswordField.value && setGamePasswordField.value.length <= 32 && setGamePasswordField.value.length >= 4) {
             game_password = setGamePasswordField.value;
             joinGameSession(game_password);
             hideOverlay();
         } else {
-            outputErrorMessageToErrorDisplay('You are already in that server!', 'red');
-            console.log('You are already in that server!');
+            if (setGamePasswordField.value.length > 32) {
+                outputErrorMessageToErrorDisplay('That game password is too long. The maximum length is 32 characters.', 'orange');
+                console.log('That game password is too long. The maximum length is 32 characters.');
+            } else if (setGamePasswordField.value.length < 4) {
+                outputErrorMessageToErrorDisplay('That game password is too short. The minimum length is 4 characters.', 'orange');
+                console.log('That game password is too short. The minimum length is 4 characters.');
+            } else if (game_password == setGamePasswordField.value) {
+                outputErrorMessageToErrorDisplay('You are already in that server!', 'red');
+                console.log('You are already in that server!');
+            } else {
+                outputErrorMessageToErrorDisplay('An error has occurred joining the server, please try again later.', 'red');
+                console.log('An error has occurred joining the server, please try again later.');
+            }
         }
     });
     
@@ -1070,14 +1086,19 @@ function setUsername() {
         overlayContainer.style = 'display: none;';
         localStorage.setItem('username', JSON.stringify(username));
     } else {
-        outputErrorMessageToErrorDisplay('That username is too short.', 'orange');
-        console.log('That username is too short.');
+        if (new_name.length < 2) {
+            outputErrorMessageToErrorDisplay('That username is too short. The minimum is 2 characters.', 'orange');
+            console.log('That username is too short. The minimum is 2 characters.');
+        } else if (new_name.length > 32) {
+            outputErrorMessageToErrorDisplay('That username is too long. The maximum is 32 characters.', 'orange');
+            console.log('That username is too long. The maximum is 32 characters.');
+        }
     }
 }
 
 // Verifies that a username follows some basic rules. Returns false if an invalid username is submitted.
 function verifyUsername(name) {
-    if (name.length == 0 || name.length > 32) {
+    if (name.length < 2 || name.length > 32) {
         return false;
     }
     return true;
