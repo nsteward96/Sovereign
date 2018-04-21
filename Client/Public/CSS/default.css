@@ -571,9 +571,7 @@ body, html {
 
 /* Room Occupants Display stylings */
 .view-room-occupants-container {
-    width: 40%;
-    min-width: 250px;
-    left: 30%;
+    width: 100%;
     padding: 0 12.5%;
 }
 
@@ -597,6 +595,7 @@ body, html {
 
 .view-room-occupants-room-name {
     font-size: 24px;
+    word-wrap: break-word;
 }
 
 .view-room-occupants-close {
