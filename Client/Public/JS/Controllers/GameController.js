@@ -55,7 +55,7 @@ function initModels() {
     modelResource['smallHousesOwned'] = 0;
     // Init all resource generation rates (rate per worker).
     modelResourceRates['resourceCollector'] = 0.5; // Resource generated per Resource collector
-    modelResourceRates['incrementalGrowthRateBuildings'] = 1.15; // Cost increase per building
+    modelResourceRates['incrementalGrowthRateBuildings'] = 1.3; // Cost increase per building
     modelResourceRates['smallHouse'] = 2; // Increase of max residents per house
     
     // Retrieve any stored user resource data.
