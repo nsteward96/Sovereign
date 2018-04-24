@@ -848,6 +848,7 @@ function leaveGameSession() {
         is_host = true;
         is_in_a_server = false;
         game_password = '';
+        printLeaveServerMessageToChat();
         initModels();
         hideServerButtons();
     }, 250);
@@ -856,6 +857,10 @@ function leaveGameSession() {
 // Remove messages from flavor text area.
 function emptyFlavorTextArea() {
     $(document.getElementById('flavorTextArea')).empty();
+}
+
+function printLeaveServerMessageToChat() {
+    createChatMessage('** You have been disconnected from the server. **');
 }
 
 // Hides buttons related to server actions on the page nav.
