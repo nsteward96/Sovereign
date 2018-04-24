@@ -124,6 +124,15 @@ function initModels() {
             buyButtonId: 'buildingSmallHouseBuyButton',
             sellButtonId: 'buildingSmallHouseSellButton'
         };
+    modelBuildings['storageShed'] =
+        {
+            id: 'buildingStorageShed',
+            basePrice: {'lumber': 125},
+            resourceType: ['lumber'],
+            price: determineCurrentPriceBuilding({'lumber': 125}, modelResource['storageShedsOwned']),
+            buyButtonId: 'buildingStorageShedBuyButton',
+            sellButtonId: 'buildingStorageShedSellButton'
+        };
 
     initModelGameProgress(storedGameProgressData);
     initModelUpgrades();
@@ -1283,6 +1292,15 @@ function updateWithDataFromServer(data) {
             price: determineCurrentPriceBuilding({'lumber': 50}, modelResource['smallHousesOwned']),
             buyButtonId: 'buildingSmallHouseBuyButton',
             sellButtonId: 'buildingSmallHouseSellButton'
+        };
+    modelBuildings['storageShed'] =
+        {
+            id: 'buildingStorageShed',
+            basePrice: {'lumber': 125},
+            resourceType: ['lumber'],
+            price: determineCurrentPriceBuilding({'lumber': 125}, modelResource['storageShedsOwned']),
+            buyButtonId: 'buildingStorageShedBuyButton',
+            sellButtonId: 'buildingStorageShedSellButton'
         };
 }
 

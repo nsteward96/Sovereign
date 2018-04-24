@@ -250,14 +250,6 @@ body, html {
     position: relative;
 }
 
-.upgrade-display-box#upgradeDisplayBoxReinforcedHousing {
-    background-image: url('../Assets/buildings-images/smallhouse.jpg');
-}
-
-.upgrade-display-box#upgradeDisplayBoxWoodenHandles {
-    background-image: url('../Assets/jobs-images/lumberjack.jpg');
-}
-
 .no-upgrades-available-container {
     height: 147px;
     padding-top: 60px;
@@ -347,12 +339,18 @@ body, html {
     background-size: cover;
 }
 
-#jobLumberjack > .job-display-box {
+#jobLumberjack > .job-display-box,
+.upgrade-display-box#upgradeDisplayBoxWoodenHandles {
     background-image: url('../Assets/jobs-images/lumberjack.jpg');
 }
 
-#buildingSmallHouse > .building-display-box {
+#buildingSmallHouse > .building-display-box,
+.upgrade-display-box#upgradeDisplayBoxReinforcedHousing {
     background-image: url('../Assets/buildings-images/smallhouse.jpg');
+}
+
+#buildingStorageShed > .building-display-box {
+    background-image: url('../Assets/buildings-images/storageshed.jpg');
 }
 
 /* Resources Display and inner stylings */
