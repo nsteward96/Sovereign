@@ -122,6 +122,9 @@ io.on('connection', function(socket){
     socket.on('chop_lumber', (data) => {
         io.to(current_host_user[current_room].id).emit('server_says_chop_lumber');
     });
+    socket.on('print_chat_message_on_room_join', (data) => {
+        socket.emit('print_chat_message_on_room_join_server', player_list[current_room].length);
+    });
     
     socket.on('disconnect', function() {
         console.log('a user disconnected');
