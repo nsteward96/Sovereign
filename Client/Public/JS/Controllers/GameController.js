@@ -1184,7 +1184,6 @@ function setupServerEmitListeners() {
         chopLumber();
     });
     socket.on('print_chat_message_on_room_join_server', function(data) {
-        console.log(data);
         var message = '** You have joined the server. There are ' + (data-1) + ' other players here. **';
         createChatMessage(message);
     });
