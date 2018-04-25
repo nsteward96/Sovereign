@@ -131,47 +131,6 @@ function initModels() {
     createTooltips();
 }
 
-// Inits the player's current progress in the game, altering what they can see.
-function initModelGameProgress(gameProgress) {
-    gameProgress = gameProgress || false;
-    
-    for (let progressModel in modelGameProgress) {
-        for (let i = 0; i < modelGameProgress[progressModel].elementIds.length; i++) {
-            document.getElementById(modelGameProgress[progressModel].elementIds[i]).style = 'display: none;';
-        }
-    }
-
-    if (gameProgress) {
-        modelGameProgress = gameProgress;
-        for (let progressModel in modelGameProgress) {
-            if (modelGameProgress[progressModel].activated === true) {
-                for (let i = 0; i < modelGameProgress[progressModel].elementIds.length; i++) {
-                    document.getElementById(modelGameProgress[progressModel].elementIds[i]).style = 'display: inline-block;';
-                }
-            }
-        }
-    } else {
-        modelGameProgress['displayBuildings'] = {
-            activated: false,
-            elementIds: ['manageTownNavButton', 'upgradeSmallHouse']
-        };
-        modelGameProgress['displayUpgrades'] = {
-            activated: false,
-            elementIds: ['manageUpgradesNavButton']
-        };
-        modelGameProgress['displayJobs'] = {
-            activated: false,
-            elementIds: ['manageJobsNavButton', 'upgradeLumberjack']
-        };
-    }
-
-    if ($('.selected.btn')[0].offsetHeight === 0) {
-        updateSelectedView(document.getElementById('resourceGenerationNavButton'));
-    }
-    
-    updateNoUpgradesAvailableDisplay();
-}
-
 // Init the upgrades model.
 function initModelUpgrades(data) {
     data = data || false;
@@ -238,6 +197,47 @@ function initModelUpgrades(data) {
     }
     
     setupUpgradeEventListeners();
+}
+
+// Inits the player's current progress in the game, altering what they can see.
+function initModelGameProgress(gameProgress) {
+    gameProgress = gameProgress || false;
+    
+    for (let progressModel in modelGameProgress) {
+        for (let i = 0; i < modelGameProgress[progressModel].elementIds.length; i++) {
+            document.getElementById(modelGameProgress[progressModel].elementIds[i]).style = 'display: none;';
+        }
+    }
+
+    if (gameProgress) {
+        modelGameProgress = gameProgress;
+        for (let progressModel in modelGameProgress) {
+            if (modelGameProgress[progressModel].activated === true) {
+                for (let i = 0; i < modelGameProgress[progressModel].elementIds.length; i++) {
+                    document.getElementById(modelGameProgress[progressModel].elementIds[i]).style = 'display: inline-block;';
+                }
+            }
+        }
+    } else {
+        modelGameProgress['displayBuildings'] = {
+            activated: false,
+            elementIds: ['manageTownNavButton', 'upgradeSmallHouse']
+        };
+        modelGameProgress['displayUpgrades'] = {
+            activated: false,
+            elementIds: ['manageUpgradesNavButton']
+        };
+        modelGameProgress['displayJobs'] = {
+            activated: false,
+            elementIds: ['manageJobsNavButton', 'upgradeLumberjack']
+        };
+    }
+
+    if ($('.selected.btn')[0].offsetHeight === 0) {
+        updateSelectedView(document.getElementById('resourceGenerationNavButton'));
+    }
+    
+    updateNoUpgradesAvailableDisplay();
 }
 
 // Gets rid of all upgrade elements in each category.
