@@ -793,6 +793,7 @@ function joinGameSession(game_password) {
     socket.emit('namespace_change', { room: game_password, player_name: username });
     window.setTimeout(function() {
         socket.emit('update_current_room_name');
+        socket.emit('print_chat_message_on_room_join');
         updateDisplayedGameProgress();
         initModelUpgrades(modelUpgrades);
         createTooltips();
@@ -1181,6 +1182,10 @@ function setupServerEmitListeners() {
     });
     socket.on('server_says_chop_lumber', function() {
         chopLumber();
+    });
+    socket.on('print_chat_message_on_room_join_server', function(data) {
+        var message = '** You have joined the server. There are ' + (data-1) + ' other players here. **';
+        createChatMessage(message);
     });
     
     socket.on('server_update_data', function(data) {
