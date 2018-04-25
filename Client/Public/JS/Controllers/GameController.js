@@ -125,8 +125,8 @@ function initModels() {
             sellButtonId: 'buildingSmallHouseSellButton'
         };
 
-    initModelGameProgress(storedGameProgressData);
     initModelUpgrades();
+    initModelGameProgress(storedGameProgressData);
 
     createTooltips();
 }
@@ -168,6 +168,8 @@ function initModelGameProgress(gameProgress) {
     if ($('.selected.btn')[0].offsetHeight === 0) {
         updateSelectedView(document.getElementById('resourceGenerationNavButton'));
     }
+    
+    updateNoUpgradesAvailableDisplay();
 }
 
 // Init the upgrades model.
@@ -234,7 +236,6 @@ function initModelUpgrades(data) {
             }
         }
     }
-    updateNoUpgradesAvailableDisplay();
     
     setupUpgradeEventListeners();
 }
@@ -251,7 +252,7 @@ function updateNoUpgradesAvailableDisplay() {
     var upgradesContainers = $('.upgrade-container');
     var hasUpgradesAvailable = true;
     for (let i = 0; i < upgradesContainers.length; i++) {
-        if (upgradesContainers[i].style.display === 'block') {
+        if (upgradesContainers[i].style.display !== 'none') {
             hasUpgradesAvailable = false;
         }
     }
@@ -1417,6 +1418,7 @@ function applyGameProgressEffect(milestone) {
     for (let i = 0; i < milestone.elementIds.length; i++) {
         $(document.getElementById(milestone.elementIds[i])).fadeIn(500);
     }
+    updateNoUpgradesAvailableDisplay();
 }
 
 // Updates displayed game progress based on activated features when you join a game.
